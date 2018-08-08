@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "383924179370",
+    "firebase_url": "https://orientation-week-app.firebaseio.com",
+    "project_id": "orientation-week-app",
+    "storage_bucket": "orientation-week-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:383924179370:android:7e61c9172e6839ee",
+        "android_client_info": {
+          "package_name": "com.example.orientationweekappv2"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "383924179370-bnlq286oillj22p7ntghr7d485thejgr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAtvkZJc2qlxcjEsUEuuP61ISs6zE7uflc"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
