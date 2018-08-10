@@ -39,6 +39,7 @@ List<double> scrollPosVal = List<double>();
 ScrollController globalScroll = new ScrollController();
 double lastScroll = 0.0;
 int lastIndex = 0;
+BuildContext scaffoldContext;
 
 DeviceCalendarPlugin _deviceCalendarPlugin;
 Calendar _selectedCalendar;
@@ -76,12 +77,15 @@ class _ScheduleState extends State<ScheduleScreen> {
     url = 'https://www3.laurentian.ca/orientationWeekApp/getSchedule' + (widget.lang.value ? 'EN' : 'FR') + '.php';
     _retrieveCalendars();
     widget.lang.addListener(() {
-      String temp = widget.lang.value ? 'EN' : 'FR';
-      setState(() {
-              url = 'https://www3.laurentian.ca/orientationWeekApp/getSchedule' + temp + '.php';
-              lastScroll = 0.0;
-              lastIndex = 0;
-            });
+      
+      if(this.mounted) {
+        String temp = widget.lang.value ? 'EN' : 'FR';
+        setState(() {
+                url = 'https://www3.laurentian.ca/orientationWeekApp/getSchedule' + temp + '.php';
+                lastScroll = 0.0;
+                lastIndex = 0;
+              });
+      }
     });
     
   }
@@ -137,10 +141,13 @@ class _ScheduleState extends State<ScheduleScreen> {
   @override
   Widget build(BuildContext context) {
 
+    scaffoldContext = context;
+
     return Scaffold(
       appBar: AppBar(
         leading: new Icon(Icons.event),
-        title: Text('Schedule'),
+        // leading: new Icon(Icons.menu),
+        title: Text((widget.lang.value ? 'Schedule' : 'Programme')),
         centerTitle: false,
         actions: <Widget>[
           new IconButton(
@@ -324,18 +331,18 @@ class ScheduleCard extends StatelessWidget {
       },
       transitionsBuilder: (_, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {
         return SlideTransition(
-      position: new Tween<Offset>(
-        begin: const Offset(1.0, 0.0),
-        end: Offset.zero,
-      ).animate(animation),
-      child: new SlideTransition(
-        position: new Tween<Offset>(
-          begin: Offset.zero,
-          end: const Offset(1.0, 0.0),
-        ).animate(secondaryAnimation),
-        child: child,
-      ),
-    );
+          position: new Tween<Offset>(
+            begin: const Offset(1.0, 0.0),
+            end: Offset.zero,
+          ).animate(animation),
+          child: new SlideTransition(
+            position: new Tween<Offset>(
+              begin: Offset.zero,
+              end: const Offset(1.0, 0.0),
+            ).animate(secondaryAnimation),
+            child: child,
+          ),
+        );
       }
     ));
 
@@ -427,7 +434,7 @@ class ScheduleCard extends StatelessWidget {
                     .createOrUpdateEvent(eventToCreate);
                 if (createEventResult.isSuccess &&
                     (createEventResult.data?.isNotEmpty ?? false)) {
-                  Scaffold.of(context).showSnackBar(new SnackBar(content: Text("Event Created"),));
+                  Scaffold.of(context).showSnackBar(new SnackBar(content: Text("Event Added To Calendar"),));
                 }
             },
             mini: true,
@@ -530,7 +537,21 @@ class EventView extends StatelessWidget {
                       ),
                       new OutlineButton( 
                         child: new Text("ADD TO CALENDAR", style: TextStyle(color: CompanyColors.blue),),
-                        onPressed: () {}, 
+                        onPressed: () async {
+                          print(card.startTime.timeZoneName);
+                          final eventToCreate = new Event(_selectedCalendar.id);
+                          eventToCreate.title = card.event;
+                          eventToCreate.start = card.startTime;
+                          eventToCreate.end = card.endTime;
+                          eventToCreate.location = card.location;
+                          eventToCreate.description = card.desc;
+                          final createEventResult = await _deviceCalendarPlugin
+                              .createOrUpdateEvent(eventToCreate);
+                          if (createEventResult.isSuccess &&
+                              (createEventResult.data?.isNotEmpty ?? false)) {
+                            Scaffold.of(scaffoldContext).showSnackBar(new SnackBar(content: Text("Event Added To Calendar"),));
+                          }
+                      }, 
                       )
                     ],
                   ),

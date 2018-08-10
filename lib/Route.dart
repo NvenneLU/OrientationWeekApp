@@ -115,6 +115,51 @@ Route<Null> getRoute(RouteSettings settings) {
                 ],
               ),
             ),
+        // drawer: Drawer(
+        //   child: ListView(
+        //     padding: EdgeInsets.zero,
+        //     children: <Widget>[
+        //       DrawerHeader(
+        //         child: Text('Laurentian University', style: new TextStyle(color: Colors.white, fontSize: 25.0),),
+        //         decoration: BoxDecoration(
+        //           color: CompanyColors.blue,
+        //         ),
+        //       ),
+        //       ListTile(
+        //         title: Text((english.value ? 'Schedule' : 'Programme')),
+        //         leading: Icon(Icons.event),
+        //         onTap: () {
+        //           Navigator.of(context).pushNamedAndRemoveUntil(
+        //           "/schedule", (route) => false);
+        //         },
+        //       ),
+        //       ListTile(
+        //         title: Text((english.value ? 'Important Dates' : 'Dates Importantes')),
+        //         leading: Icon(Icons.priority_high),
+        //         onTap: () {
+        //           Navigator.of(context).pushNamedAndRemoveUntil(
+        //           "/important", (route) => false);
+        //         },
+        //       ),
+        //       ListTile(
+        //         title: Text((english.value ? 'Announcements' : 'Annonces')),
+        //         leading: Icon(Icons.notifications_active),
+        //         onTap: () {
+        //           Navigator.of(context).pushNamedAndRemoveUntil(
+        //           "/announcements", (route) => false);
+        //         },
+        //       ),
+        //       ListTile(
+        //         title: Text((english.value ? 'Information' : 'Informations')),
+        //         leading: Icon(Icons.info_outline),
+        //         onTap: () {
+        //           Navigator.of(context).pushNamedAndRemoveUntil(
+        //           "/info", (route) => false);
+        //         },
+        //       ),
+        //     ],
+        //   ),
+        // ),
       )
     );
   }

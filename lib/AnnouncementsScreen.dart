@@ -31,9 +31,11 @@ class AnnouncementState extends State<AnnouncementsScreen> {
     super.initState();
     collection = 'announcements' + (widget.lang.value ? 'E' : 'F');
     widget.lang.addListener(() {
-      setState(() {
-              collection = 'announcements' + (widget.lang.value ? 'E' : 'F');
-            });
+      if(this.mounted) {
+        setState(() {
+                collection = 'announcements' + (widget.lang.value ? 'E' : 'F');
+              });
+      }
     });
 
     _firebaseMessaging.configure(
@@ -69,7 +71,8 @@ class AnnouncementState extends State<AnnouncementsScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: new Icon(Icons.notifications_active),
-        title: Text('Announcements'),
+        // leading: new Icon(Icons.menu),
+        title: Text((widget.lang.value ? 'Announcements' : 'Annonces')),
         centerTitle: false,
         actions: <Widget>[
           new IconButton(

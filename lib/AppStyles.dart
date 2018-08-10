@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 class AppTextStyle {
   static TextStyle h6 = new TextStyle(fontWeight: FontWeight.w500, fontSize: 20.0, letterSpacing: 0.25, color: CompanyColors.blue);
+  static TextStyle h5 = new TextStyle(fontWeight: FontWeight.w400, fontSize: 24.0, letterSpacing: 0.0, color: CompanyColors.blue);
   static TextStyle h5HighEmp = new TextStyle(fontWeight: FontWeight.w400, fontSize: 24.0, letterSpacing: 0.0, color: Colors.grey[900]);
   static TextStyle h6HighEmp = new TextStyle(fontWeight: FontWeight.w500, fontSize: 20.0, letterSpacing: 0.0, color: Colors.grey[900]);
 

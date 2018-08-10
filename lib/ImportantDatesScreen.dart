@@ -63,10 +63,12 @@ class ImportantDatesState extends State<ImportantDatesScreen> {
     url = "https://www.googleapis.com/calendar/v3/calendars/" + (widget.lang.value ? en : fr) +"/events/?key=AIzaSyA9oGfxEwtmM7t5xlnCYjuuy5polbueWnI&timeMin=2018-08-01T15%3A19%3A21%2B00%3A00&timeMax=2019-06-30T15%3A19%3A21%2B00%3A00";
 
     widget.lang.addListener(() {
-      setState(() {
-              url = "https://www.googleapis.com/calendar/v3/calendars/" + (widget.lang.value ? en : fr) +"/events/?key=AIzaSyA9oGfxEwtmM7t5xlnCYjuuy5polbueWnI&timeMin=2018-08-01T15%3A19%3A21%2B00%3A00&timeMax=2019-06-30T15%3A19%3A21%2B00%3A00";
-              print(url);
-            });
+      if(this.mounted) {
+        setState(() {
+                url = "https://www.googleapis.com/calendar/v3/calendars/" + (widget.lang.value ? en : fr) +"/events/?key=AIzaSyA9oGfxEwtmM7t5xlnCYjuuy5polbueWnI&timeMin=2018-08-01T15%3A19%3A21%2B00%3A00&timeMax=2019-06-30T15%3A19%3A21%2B00%3A00";
+                print(url);
+              });
+      }
     });
   }
 
@@ -120,7 +122,8 @@ class ImportantDatesState extends State<ImportantDatesScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: new Icon(Icons.priority_high),
-        title: Text('Important Dates'),
+        // leading: new Icon(Icons.menu),
+        title: Text((widget.lang.value ? 'Important Dates' : 'Dates Importantes')),
         centerTitle: false,
         actions: <Widget>[
           new IconButton(
