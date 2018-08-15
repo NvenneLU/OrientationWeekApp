@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'AppStyles.dart';
 import 'Route.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+
+
 
 void main() => runApp(new MyApp());
 
@@ -16,11 +19,19 @@ class MyApp extends StatefulWidget {
 
 class _MyApp extends State<MyApp> {
 
-  
+
 
   @override
   Widget build(BuildContext context) =>
       new MaterialApp(
+        localizationsDelegates: [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+        ],
+        supportedLocales: [
+          const Locale('en', 'US'), // English
+          const Locale('fr', 'CA'), // French
+        ],
         initialRoute: "/list",
         onGenerateRoute: getRoute,
         theme: new ThemeData(

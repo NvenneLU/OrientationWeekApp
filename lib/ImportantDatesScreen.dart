@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:device_calendar/device_calendar.dart';
 import 'AppStyles.dart';
 import 'dart:async';
 import 'package:http/http.dart';
 import 'dart:convert';
 import 'TimeFormat.dart';
 import 'Route.dart';
+import 'package:flutter/services.dart';
+
+DeviceCalendarPlugin _deviceCalendarPlugin;
+Calendar _selectedCalendar;
+List<Calendar> _calendars;
 
 
 class ImportDate {
@@ -52,6 +58,31 @@ class ImportantDatesScreen extends StatefulWidget {
 
 class ImportantDatesState extends State<ImportantDatesScreen> {
 
+  ImportantDatesState() {
+    _deviceCalendarPlugin = new DeviceCalendarPlugin();
+  }
+
+  void _retrieveCalendars() async {
+    try {
+      var permissionsGranted = await _deviceCalendarPlugin.hasPermissions();
+      if (permissionsGranted.isSuccess && !permissionsGranted.data) {
+        permissionsGranted = await _deviceCalendarPlugin.requestPermissions();
+        if (!permissionsGranted.isSuccess || !permissionsGranted.data) {
+          return;
+        }
+      }
+
+      final calendarsResult = await _deviceCalendarPlugin.retrieveCalendars();
+      setState(() {
+        _calendars = calendarsResult?.data;
+        _selectedCalendar = _calendars[0];
+      });
+    } on PlatformException catch (e) {
+      print(e);
+    }
+  }
+
+
   String fr = "laurentian.ca_7uqfoldfh55ml6gsvbvui7bdac@group.calendar.google.com";
   String en = "laurentian.ca_62rsj0ue19b2kflvsigkjrk4ac@group.calendar.google.com";
   String url;
@@ -59,6 +90,7 @@ class ImportantDatesState extends State<ImportantDatesScreen> {
   @override
   initState() {
     super.initState();
+    _retrieveCalendars();
 
     url = "https://www.googleapis.com/calendar/v3/calendars/" + (widget.lang.value ? en : fr) +"/events/?key=AIzaSyA9oGfxEwtmM7t5xlnCYjuuy5polbueWnI&timeMin=2018-08-01T15%3A19%3A21%2B00%3A00&timeMax=2019-06-30T15%3A19%3A21%2B00%3A00";
 
@@ -99,7 +131,7 @@ class ImportantDatesState extends State<ImportantDatesScreen> {
   }
 
 
-  Widget _createListView(List<ImportDate> dates) {
+  Widget _createListView(List<ImportDate> dates, BuildContext scaffoldContext) {
 
     return new ListView.builder(
       itemCount: dates.length,
@@ -107,7 +139,26 @@ class ImportantDatesState extends State<ImportantDatesScreen> {
         ImportDate date = dates[index];
         return new Column(
           children: <Widget>[
-            new _ImportantDate(date.name, TimeFormat.toImportantDate(date.start, date.end)),
+            new ListTile(
+              title: new Text(date.name, style: AppTextStyle.subPrimary),
+              subtitle: new Text(TimeFormat.toImportantDate(date.start, date.end)),
+              trailing: new IconButton(
+                icon: new Icon(Icons.add), 
+                tooltip: 'Add date', 
+                onPressed: () async {
+                    final eventToCreate = new Event(_selectedCalendar.id);
+                    eventToCreate.title = date.name;
+                    eventToCreate.start = date.start;
+                    eventToCreate.end = date.end;
+                    final createEventResult = await _deviceCalendarPlugin
+                        .createOrUpdateEvent(eventToCreate);
+                    if (createEventResult.isSuccess &&
+                        (createEventResult.data?.isNotEmpty ?? false)) {
+                      Scaffold.of(scaffoldContext).showSnackBar(new SnackBar(content: Text("Important Date Added To Calendar"),));
+                    }
+                }, 
+              ),
+            ),
             new Divider(),
           ],
         );
@@ -121,7 +172,7 @@ class ImportantDatesState extends State<ImportantDatesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: new Icon(Icons.priority_high),
+        leading: new Icon(Icons.star),
         // leading: new Icon(Icons.menu),
         title: Text((widget.lang.value ? 'Important Dates' : 'Dates Importantes')),
         centerTitle: false,
@@ -150,7 +201,7 @@ class ImportantDatesState extends State<ImportantDatesScreen> {
               if(snapshot.hasError) {
                 return Text('Error ${snapshot.error}');
               } else {
-                return _createListView(snapshot.data);
+                return _createListView(snapshot.data, context);
               }
           }
         
@@ -161,28 +212,4 @@ class ImportantDatesState extends State<ImportantDatesScreen> {
 }
 
 
-
-
-
-class _ImportantDate extends StatelessWidget {
-
-
-  final String title;
-  final String date;
-
-  _ImportantDate(this.title, this.date);
-
-  @override
-  Widget build(BuildContext context) {  
-    return new ListTile(
-      title: new Text(this.title, style: AppTextStyle.subPrimary),
-      subtitle: new Text(this.date),
-      trailing: new IconButton(
-        icon: new Icon(Icons.add), 
-        tooltip: 'Add date', 
-        onPressed: () {}, 
-      ),
-    );
-  }
-}
 

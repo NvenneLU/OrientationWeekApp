@@ -1,10 +1,17 @@
+import "Route.dart";
+
 class TimeFormat {
   static String toMonthDay(DateTime time) {
     return _getMonth(time.month) + " " + time.day.toString();
   }
 
   static String toWeekdayTime(DateTime s, DateTime e) {
-    return _getWeekday(s.weekday) + " " + _getEnglishTime(s) + " - " + _getEnglishTime(e);
+    if(s.day == e.day) {
+      return _getWeekday(s.weekday) + " " + _getEnglishTime(s) + " - " + _getEnglishTime(e);
+    } else {
+      return _getWeekday(s.weekday) + " " + _getEnglishTime(s) + " - " + _getWeekday(e.weekday) + " " + _getEnglishTime(e);
+    }
+    
   }
 
   static String toDividerTime(DateTime time) {
@@ -28,7 +35,9 @@ class TimeFormat {
   }
 
   static String _getEnglishTime(DateTime s) {
-    if(s.hour > 12) {
+    if(s.hour == 0) {
+      return "12:00 AM";
+    } else if(s.hour > 12) {
       return (s.hour - 12).toString() + ":" + (s.minute < 10 ? s.minute.toString() + "0" : s.minute.toString()) + " PM";
     } else {
       return s.hour.toString() + ":" + (s.minute < 10 ? s.minute.toString() + "0" : s.minute.toString()) +  " AM"; 
@@ -36,50 +45,53 @@ class TimeFormat {
   }
 
   static String _getMonth(int month) {
+    final lang = getLang();
     switch(month) {
-      case 1: return "JAN";
-      case 2: return "FEB";
-      case 3: return "MAR";
-      case 4: return "APR";
-      case 5: return "MAY";
-      case 6: return "JUN";
-      case 7: return "JUL";
-      case 8: return "AUG";
-      case 9: return "SEP";
-      case 10: return "OCT";
-      case 11: return "NOV";
-      case 12: return "DEC";
+      case 1: return lang ? "JAN" : "JANV";
+      case 2: return lang ? "FEB" : "FÉVR";
+      case 3: return lang ? "MAR" : "MARS";
+      case 4: return lang ? "APR" : "AVR";
+      case 5: return lang ? "MAY" : "MAI";
+      case 6: return lang ? "JUN" : "JUIN";
+      case 7: return lang ? "JUL" : "JUIL";
+      case 8: return lang ? "AUG" : "AOÛT";
+      case 9: return lang ? "SEP" : "SEPT";
+      case 10: return lang ? "OCT" : "OCT";
+      case 11: return lang ? "NOV" : "NOV";
+      case 12: return lang ? "DEC" : "DÉC";
       default: return null;
     }
   }
 
   static String _getMonthFull(int month) {
+    final lang = getLang();
     switch(month) {
-      case 1: return "January";
-      case 2: return "Ferbuary";
-      case 3: return "March";
-      case 4: return "April";
-      case 5: return "May";
-      case 6: return "June";
-      case 7: return "July";
-      case 8: return "August";
-      case 9: return "September";
-      case 10: return "October";
-      case 11: return "November";
-      case 12: return "December";
+      case 1: return lang ? "January" : "Janvier";
+      case 2: return lang ? "Ferbuary" : "Février";
+      case 3: return lang ? "March" : "Mars";
+      case 4: return lang ? "April" : "Avril";
+      case 5: return lang ? "May" : "Mai";
+      case 6: return lang ? "June" : "Juin";
+      case 7: return lang ? "July" : "Juillet";
+      case 8: return lang ? "August" : "Août";
+      case 9: return lang ? "September" : "Septembre";
+      case 10: return lang ? "October" : "Octobre";
+      case 11: return lang ? "November" : "Novembre";
+      case 12: return lang ? "December" : "Décembre";
       default: return null;
     }
   }
 
   static String _getWeekday(int weekday) {
+    final lang = getLang();
     switch(weekday) {
-      case 1: return "Mon";
-      case 2: return "Tue";
-      case 3: return "Wed";
-      case 4: return "Thu";
-      case 5: return "Fri";
-      case 6: return "Sat";
-      case 7: return "Sun";
+      case 1: return lang ? "Mon" : "Lun";
+      case 2: return lang ? "Tue" : "Mar";
+      case 3: return lang ? "Wed" : "Mer";
+      case 4: return lang ? "Thu" : "Jeu";
+      case 5: return lang ? "Fri" : "Ven";
+      case 6: return lang ? "Sat" : "Sam";
+      case 7: return lang ? "Sun" : "Dim";
       default: return null;
     }
   }

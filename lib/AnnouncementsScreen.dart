@@ -34,19 +34,27 @@ class AnnouncementState extends State<AnnouncementsScreen> {
       if(this.mounted) {
         setState(() {
                 collection = 'announcements' + (widget.lang.value ? 'E' : 'F');
+                _firebaseMessaging.unsubscribeFromTopic("announcements" + (widget.lang.value ? "F" : "E"));
+                _firebaseMessaging.subscribeToTopic("announcements" + (widget.lang.value ? "E" : "F"));
               });
       }
     });
 
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) {
-        print("onMessage: $message");
+        // Navigator.of(context).pushNamedAndRemoveUntil(
+        //               "/announcements", (route) => false);
+        print("Test");
       },
       onLaunch: (Map<String, dynamic> message) {
-        print("onLaunch: $message");
+        // Navigator.of(context).pushNamedAndRemoveUntil(
+        //               "/announcements", (route) => false);
+         print("Test");
       },
       onResume: (Map<String, dynamic> message) {
-        print("onResume: $message");
+        // Navigator.of(context).pushNamedAndRemoveUntil(
+        //               "/announcements", (route) => false);
+         print("Test");
       },
     );
     _firebaseMessaging.requestNotificationPermissions(
@@ -62,7 +70,8 @@ class AnnouncementState extends State<AnnouncementsScreen> {
       });
       print(_homeScreenText);
     });
-    _firebaseMessaging.subscribeToTopic("announcements");
+    _firebaseMessaging.unsubscribeFromTopic("announcements" + (widget.lang.value ? "F" : "E"));
+    _firebaseMessaging.subscribeToTopic("announcements" + (widget.lang.value ? "E" : "F"));
   }
 
 
@@ -91,17 +100,23 @@ class AnnouncementState extends State<AnnouncementsScreen> {
 
       body: new StreamBuilder(
         stream: Firestore.instance.collection(collection).snapshots(),
-        builder: (BuildContext context, AsyncSnapshot snapshot) {
-          if (!snapshot.hasData) return CircularProgressIndicator();
-            return new ListView.builder(
-              itemCount: snapshot.data.documents.length,
-              padding: const EdgeInsets.only(top: 10.0),
-              itemBuilder: (context, index) {
-                DocumentSnapshot ds = snapshot.data.documents[index];
-                print(ds.data['time']);
-                
-                return new _AnnouncementCard.fromDocument(ds);
-              }
+        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
+            if(snapshot.data.documents.isEmpty) {
+              return new Center(child: Text(widget.lang.value ? "No Announcements" : "Aucune Annonces",));
+            }
+            var data = snapshot.data.documents.toList(growable: false);
+            List<Widget> info = new List<Widget>();
+            var sortedKeys = data
+            ..sort((k1, k2) => k1['time'].compareTo(k2['time']));
+
+            sortedKeys.reversed.forEach((dynamic v) {
+                      info.add(_AnnouncementCard.fromDocument(v));
+                    });
+
+            return new ListView(
+              padding: EdgeInsets.only(top: 10.0),
+              children: info,
             );
         }   
       )
@@ -164,18 +179,18 @@ class _AnnouncementCard extends StatelessWidget {
               padding: EdgeInsets.fromLTRB(0.0, 4.0, 0.0, 4.0),
               child: Text(this.desc, style: AppTextStyle.body2MedEmp),
             ),
-            new ButtonTheme.bar(
-              textTheme: ButtonTextTheme.primary,
-              child: new ButtonBar(
-                alignment: MainAxisAlignment.start,
-                children: <Widget>[
-                  new FlatButton(
-                    child: new Text('VIEW'),
-                    onPressed: () {},
-                  )
-                ],
-              ),
-            )
+            // new ButtonTheme.bar(
+            //   textTheme: ButtonTextTheme.primary,
+            //   child: new ButtonBar(
+            //     alignment: MainAxisAlignment.start,
+            //     children: <Widget>[
+            //       new FlatButton(
+            //         child: new Text('VIEW'),
+            //         onPressed: () {},
+            //       )
+            //     ],
+            //   ),
+            // )
           ],
         ),
       ),

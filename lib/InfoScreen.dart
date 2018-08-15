@@ -3,9 +3,36 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'AppStyles.dart';
 import 'dart:collection';
 import 'package:url_launcher/url_launcher.dart';
+import "Route.dart";
+
+class InfoScreen extends StatefulWidget {
+  final LanguageCallback callback;
+  final ValueNotifier<bool> lang;
+
+  InfoScreen({this.callback, this.lang});
 
 
-class InfoScreen extends StatelessWidget {
+  @override
+  InfoScreenState createState() => new InfoScreenState();
+
+}
+
+
+class InfoScreenState extends State<InfoScreen> {
+  String load = "load";
+    @override
+  initState() {
+    super.initState();
+    widget.lang.addListener(() {
+      
+      if(this.mounted) {
+        setState(() {
+              // load = "load2";
+              });
+      }
+    });
+    
+  }
 
 
 
@@ -68,6 +95,8 @@ class InfoScreen extends StatelessWidget {
             }
           } else if (v[i].toString().contains("mailto:")){
             temp.add(new FlatButton(child: Text(v[i].toString().split("mailto:")[1]),padding: EdgeInsets.zero, onPressed: () => launch(v[i]),));
+          } else if (v[i].toString().contains("http://") || v[i].toString().contains("https://")) {
+            temp.add(new FlatButton(child: Text(v[i].toString().split("display:")[1]),padding: EdgeInsets.zero, onPressed: () => launch(v[i].split("display:")[0]),));
           } else {
             temp.add(new Text(v[i], style: AppTextStyle.body2MedEmp,));
           }
@@ -165,20 +194,32 @@ class InfoScreen extends StatelessWidget {
               pageBuilder: (BuildContext context, _, __) {
                 return new Scaffold(
                   appBar: AppBar(
-                    leading: Icon(Icons.info_outline),
-                    title: Text("View Service"),
+                    leading: Icon(Icons.info),
+                    title: Text("Info"),
                     centerTitle: false,
                   ),
-                  body: new Card(
-                    margin: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 25.0),
-                    child: new Container(
-                      padding: EdgeInsets.fromLTRB(14.0, 8.0, 14.0, 8.0),
-                      child: new Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: temp
-                      ),
+                  body: new GestureDetector(
+                    onHorizontalDragEnd: (DragEndDetails e) {
+                      print(e.velocity.pixelsPerSecond);
+                      if(e.velocity.pixelsPerSecond.dx > 1000) {
+                        Navigator.of(context).pop();
+                      }
+                    },
+                    child: new ListView(
+                      children: <Widget>[
+                        new Card(
+                          margin: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 25.0),
+                          child: new Container(
+                            padding: EdgeInsets.fromLTRB(14.0, 8.0, 14.0, 8.0),
+                            child: new Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: temp
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
+                  )
                 );
               },
               transitionsBuilder: (_, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {
@@ -219,13 +260,13 @@ class InfoScreen extends StatelessWidget {
           appBar: AppBar(
             bottom: TabBar(
               tabs: <Widget>[
-                Tab(icon: Icon(Icons.favorite_border)),
+                Tab(icon: Icon(Icons.favorite)),
                 Tab(icon: Icon(Icons.schedule)),
                 Tab(icon: Icon(Icons.contact_phone)),
                 Tab(icon: Icon(Icons.home)),
               ],
             ),
-            leading: new Icon(Icons.info_outline),
+            leading: new Icon(Icons.info),
             // leading: new Icon(Icons.menu),
             title: Text('Info'),
             centerTitle: false,
@@ -234,11 +275,11 @@ class InfoScreen extends StatelessWidget {
                 icon: const Icon(Icons.language),
                 tooltip: 'Language',
                 onPressed: () {
-                  // if(widget.lang.value) {
-                  //   widget.callback(false);
-                  // } else {
-                  //   widget.callback(true);
-                  // }
+                  if(widget.lang.value) {
+                    widget.callback(false);
+                  } else {
+                    widget.callback(true);
+                  }
                 },
               ),
             ],
@@ -246,11 +287,11 @@ class InfoScreen extends StatelessWidget {
           body: TabBarView(
             children: <Widget>[
               new StreamBuilder(
-                stream: Firestore.instance.document("info/Campus_Safety").snapshots(),
+                stream: Firestore.instance.document("info" + (widget.lang.value ? "" : "F") + "/Campus_Safety").snapshots(),
                 builder: (BuildContext context, AsyncSnapshot snapshot) {
                   if (!snapshot.hasData) return new Center(child: CircularProgressIndicator());
                     List<Widget> info = new List<Widget>();
-                    info.add(new Container(margin: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 0.0), child: Text("Campus Safety", style: AppTextStyle.h5,)));
+                    info.add(new Container(margin: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 0.0), child: Text(widget.lang.value ? "Campus Safety" : "Sécurité sur le campus", style: AppTextStyle.h5,)));
                     DocumentSnapshot ds = snapshot.data;
                     Map<String, dynamic> temp = ds.data;
                     var sortedKeys = temp.keys.toList(growable:false)
@@ -266,11 +307,33 @@ class InfoScreen extends StatelessWidget {
                 }   
               ),
               new StreamBuilder(
-                stream: Firestore.instance.document("info/HoursOperations").snapshots(),
+                stream: Firestore.instance.document("info" + (widget.lang.value ? "/HoursOperations" : "F/HoursOperation")).snapshots(),
                 builder: (BuildContext context, AsyncSnapshot snapshot) {
                   if (!snapshot.hasData) return new Center(child: CircularProgressIndicator());
                     List<Widget> info = new List<Widget>();
-                    info.add(new Container(margin: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 0.0), child: Text("Hours of Operations", style: AppTextStyle.h5,)));
+                    info.add(new Container(margin: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 0.0), child: Text(widget.lang.value ? "Hours of operation" : "Heures d'ouverture", style: AppTextStyle.h5,)));
+                    DocumentSnapshot ds = snapshot.data;
+                    print(ds);
+                    Map<String, dynamic> temp = ds.data;
+                    var sortedKeys = temp.keys.toList(growable:false)
+                    ..sort((k1, k2) => k1.split("-")[0].compareTo(k2.split("-")[0]));
+                    LinkedHashMap sortedMap = new LinkedHashMap
+                      .fromIterable(sortedKeys, key: (k) => k, value: (k) => temp[k]);
+
+                    sortedMap.forEach((dynamic t, dynamic v) {
+                      info.add(getCustomWidget(t, v, context));
+                    });
+                    return new ListView(
+                      children: info,
+                    );
+                }   
+              ),
+              new StreamBuilder(
+                stream: Firestore.instance.document("info" + (widget.lang.value ? "" : "F") + "/Contacts").snapshots(),
+                builder: (BuildContext context, AsyncSnapshot snapshot) {
+                  if (!snapshot.hasData) return new Center(child: CircularProgressIndicator());
+                    List<Widget> info = new List<Widget>();
+                    info.add(new Container(margin: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 0.0), child: Text(widget.lang.value ? "Support and Contacts" : "Soutiens et personnes contacts", style: AppTextStyle.h5,)));
                     DocumentSnapshot ds = snapshot.data;
                     Map<String, dynamic> temp = ds.data;
                     var sortedKeys = temp.keys.toList(growable:false)
@@ -286,31 +349,11 @@ class InfoScreen extends StatelessWidget {
                 }   
               ),
               new StreamBuilder(
-                stream: Firestore.instance.document("info/Contacts").snapshots(),
+                stream: Firestore.instance.document("info" + (widget.lang.value ? "" : "F") + "/ResMoveIn").snapshots(),
                 builder: (BuildContext context, AsyncSnapshot snapshot) {
                   if (!snapshot.hasData) return new Center(child: CircularProgressIndicator());
                     List<Widget> info = new List<Widget>();
-                    info.add(new Container(margin: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 0.0), child: Text("Support and Contacts", style: AppTextStyle.h5,)));
-                    DocumentSnapshot ds = snapshot.data;
-                    Map<String, dynamic> temp = ds.data;
-                    var sortedKeys = temp.keys.toList(growable:false)
-                    ..sort((k1, k2) => k1.split("-")[0].compareTo(k2.split("-")[0]));
-                    LinkedHashMap sortedMap = new LinkedHashMap
-                      .fromIterable(sortedKeys, key: (k) => k, value: (k) => temp[k]);
-                    sortedMap.forEach((dynamic t, dynamic v) {
-                      info.add(getCustomWidget(t, v, context));
-                    });
-                    return new ListView(
-                      children: info,
-                    );
-                }   
-              ),
-              new StreamBuilder(
-                stream: Firestore.instance.document("info/ResMoveIn").snapshots(),
-                builder: (BuildContext context, AsyncSnapshot snapshot) {
-                  if (!snapshot.hasData) return new Center(child: CircularProgressIndicator());
-                    List<Widget> info = new List<Widget>();
-                    info.add(new Container(margin: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 0.0), child: Text("Residence Move-In", style: AppTextStyle.h5,)));
+                    info.add(new Container(margin: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 0.0), child: Text(widget.lang.value ? "Residence Move-In" : "Emménagement en résidence", style: AppTextStyle.h5,)));
                     DocumentSnapshot ds = snapshot.data;
                     Map<String, dynamic> temp = ds.data;
                     var sortedKeys = temp.keys.toList(growable:false)

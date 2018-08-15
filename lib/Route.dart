@@ -14,7 +14,7 @@ typedef LanguageCallback(bool en);
 ScheduleScreen scheduleScreen = new ScheduleScreen(callback: (en) => english.value = en, lang: english);
 ImportantDatesScreen importantDatesScreen = new ImportantDatesScreen(callback: (en) => english.value = en, lang: english);
 AnnouncementsScreen announcementsScreen = new AnnouncementsScreen(callback: (en) => english.value = en, lang: english);
-InfoScreen infoScreen = new InfoScreen();
+InfoScreen infoScreen = new InfoScreen(callback: (en) => english.value = en, lang: english);
 
 
 Widget getScreen(String settings) {
@@ -39,6 +39,10 @@ Widget getScreen(String settings) {
       return scheduleScreen;
       
   }
+}
+
+bool getLang() {
+  return english.value;
 }
 
 
@@ -102,7 +106,7 @@ Route<Null> getRoute(RouteSettings settings) {
                 items: [
                   new BottomNavigationBarItem(
                     backgroundColor: CompanyColors.blue,
-                      icon: new Icon(Icons.priority_high), title: new Container(height: 0.0,)),
+                      icon: new Icon(Icons.star), title: new Container(height: 0.0,)),
                   new BottomNavigationBarItem(
                     backgroundColor: CompanyColors.blue,
                       icon: new Icon(Icons.notifications_active), title: new Container(height: 0.0,)),
@@ -111,7 +115,7 @@ Route<Null> getRoute(RouteSettings settings) {
                       icon: new Icon(Icons.event), title: new Container(height: 0.0,)),
                   new BottomNavigationBarItem(
                     backgroundColor: CompanyColors.blue,
-                      icon: new Icon(Icons.info_outline), title: new Container(height: 0.0,)),
+                      icon: new Icon(Icons.info), title: new Container(height: 0.0,)),
                 ],
               ),
             ),
