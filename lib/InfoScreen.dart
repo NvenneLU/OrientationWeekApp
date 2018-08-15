@@ -31,6 +31,13 @@ class InfoScreenState extends State<InfoScreen> {
               });
       }
     });
+    debugVal.addListener(() {
+      if(this.mounted) {
+        setState(() {
+                  print("Swap");
+                });
+      }
+    });
     
   }
 
@@ -252,8 +259,140 @@ class InfoScreenState extends State<InfoScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // return MaterialApp(
-    //   home: 
+    if(debugVal.value) {
+      return DefaultTabController(
+        length: 4,
+        child: Scaffold(
+          appBar: AppBar(
+            bottom: TabBar(
+              tabs: <Widget>[
+                Tab(icon: Icon(Icons.favorite)),
+                Tab(icon: Icon(Icons.schedule)),
+                Tab(icon: Icon(Icons.contact_phone)),
+                Tab(icon: Icon(Icons.home)),
+              ],
+            ),
+            // leading: new Icon(Icons.info),
+            // leading: new Icon(Icons.menu),
+            title: Text('Info'),
+            centerTitle: false,
+            actions: <Widget>[
+              new IconButton(
+              icon: Icon(Icons.swap_calls),
+              onPressed: () {
+                if(debugVal.value){
+                  debugVal.value = false;
+                } else {
+                  debugVal.value = true;
+                }
+              },
+            ),
+              new IconButton(
+                icon: const Icon(Icons.language),
+                tooltip: 'Language',
+                onPressed: () {
+                  if(widget.lang.value) {
+                    widget.callback(false);
+                    sendAnalyticsEvent("change_language", "Changed to french");
+                  } else {
+                    widget.callback(true);
+                    sendAnalyticsEvent("change_language", "Changed to english");
+                  }
+                  
+                },
+              ),
+            ],
+          ),
+          drawer: getDrawer(context),
+          body: TabBarView(
+            children: <Widget>[
+              new StreamBuilder(
+                stream: Firestore.instance.document("info" + (widget.lang.value ? "" : "F") + "/Campus_Safety").snapshots(),
+                builder: (BuildContext context, AsyncSnapshot snapshot) {
+                  if (!snapshot.hasData) return new Center(child: CircularProgressIndicator());
+                    List<Widget> info = new List<Widget>();
+                    info.add(new Container(margin: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 0.0), child: Text(widget.lang.value ? "Campus Safety" : "Sécurité sur le campus", style: AppTextStyle.h5,)));
+                    DocumentSnapshot ds = snapshot.data;
+                    Map<String, dynamic> temp = ds.data;
+                    var sortedKeys = temp.keys.toList(growable:false)
+                    ..sort((k1, k2) => k1.split("-")[0].compareTo(k2.split("-")[0]));
+                    LinkedHashMap sortedMap = new LinkedHashMap
+                      .fromIterable(sortedKeys, key: (k) => k, value: (k) => temp[k]);
+                    sortedMap.forEach((dynamic t, dynamic v) {
+                      info.add(getCustomWidget(t, v, context));
+                    });
+                    return new ListView(
+                      children: info,
+                    );
+                }   
+              ),
+              new StreamBuilder(
+                stream: Firestore.instance.document("info" + (widget.lang.value ? "/HoursOperations" : "F/HoursOperation")).snapshots(),
+                builder: (BuildContext context, AsyncSnapshot snapshot) {
+                  if (!snapshot.hasData) return new Center(child: CircularProgressIndicator());
+                    List<Widget> info = new List<Widget>();
+                    info.add(new Container(margin: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 0.0), child: Text(widget.lang.value ? "Hours of operation" : "Heures d'ouverture", style: AppTextStyle.h5,)));
+                    DocumentSnapshot ds = snapshot.data;
+                    print(ds);
+                    Map<String, dynamic> temp = ds.data;
+                    var sortedKeys = temp.keys.toList(growable:false)
+                    ..sort((k1, k2) => k1.split("-")[0].compareTo(k2.split("-")[0]));
+                    LinkedHashMap sortedMap = new LinkedHashMap
+                      .fromIterable(sortedKeys, key: (k) => k, value: (k) => temp[k]);
+
+                    sortedMap.forEach((dynamic t, dynamic v) {
+                      info.add(getCustomWidget(t, v, context));
+                    });
+                    return new ListView(
+                      children: info,
+                    );
+                }   
+              ),
+              new StreamBuilder(
+                stream: Firestore.instance.document("info" + (widget.lang.value ? "" : "F") + "/Contacts").snapshots(),
+                builder: (BuildContext context, AsyncSnapshot snapshot) {
+                  if (!snapshot.hasData) return new Center(child: CircularProgressIndicator());
+                    List<Widget> info = new List<Widget>();
+                    info.add(new Container(margin: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 0.0), child: Text(widget.lang.value ? "Support and Contacts" : "Soutiens et personnes contacts", style: AppTextStyle.h5,)));
+                    DocumentSnapshot ds = snapshot.data;
+                    Map<String, dynamic> temp = ds.data;
+                    var sortedKeys = temp.keys.toList(growable:false)
+                    ..sort((k1, k2) => k1.split("-")[0].compareTo(k2.split("-")[0]));
+                    LinkedHashMap sortedMap = new LinkedHashMap
+                      .fromIterable(sortedKeys, key: (k) => k, value: (k) => temp[k]);
+                    sortedMap.forEach((dynamic t, dynamic v) {
+                      info.add(getCustomWidget(t, v, context));
+                    });
+                    return new ListView(
+                      children: info,
+                    );
+                }   
+              ),
+              new StreamBuilder(
+                stream: Firestore.instance.document("info" + (widget.lang.value ? "" : "F") + "/ResMoveIn").snapshots(),
+                builder: (BuildContext context, AsyncSnapshot snapshot) {
+                  if (!snapshot.hasData) return new Center(child: CircularProgressIndicator());
+                    List<Widget> info = new List<Widget>();
+                    info.add(new Container(margin: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 0.0), child: Text(widget.lang.value ? "Residence Move-In" : "Emménagement en résidence", style: AppTextStyle.h5,)));
+                    DocumentSnapshot ds = snapshot.data;
+                    Map<String, dynamic> temp = ds.data;
+                    var sortedKeys = temp.keys.toList(growable:false)
+                    ..sort((k1, k2) => k1.split("-")[0].compareTo(k2.split("-")[0]));
+                    LinkedHashMap sortedMap = new LinkedHashMap
+                      .fromIterable(sortedKeys, key: (k) => k, value: (k) => temp[k]);
+                    sortedMap.forEach((dynamic t, dynamic v) {
+                      info.add(getCustomWidget(t, v, context));
+                    });
+                    return new ListView(
+                      children: info,
+                    );
+                }   
+              ),
+            ],
+          ),
+        ),
+      );
+    } else {
       return DefaultTabController(
         length: 4,
         child: Scaffold(
@@ -267,10 +406,19 @@ class InfoScreenState extends State<InfoScreen> {
               ],
             ),
             leading: new Icon(Icons.info),
-            // leading: new Icon(Icons.menu),
             title: Text('Info'),
             centerTitle: false,
             actions: <Widget>[
+              new IconButton(
+              icon: Icon(Icons.swap_calls),
+              onPressed: () {
+                if(debugVal.value){
+                  debugVal.value = false;
+                } else {
+                  debugVal.value = true;
+                }
+              },
+            ),
               new IconButton(
                 icon: const Icon(Icons.language),
                 tooltip: 'Language',
@@ -372,6 +520,6 @@ class InfoScreenState extends State<InfoScreen> {
           ),
         ),
       );
-    // );
+    }
   }
 }

@@ -39,6 +39,13 @@ class AnnouncementState extends State<AnnouncementsScreen> {
               });
       }
     });
+    debugVal.addListener(() {
+      if(this.mounted) {
+        setState(() {
+                  print("Swap");
+                });
+      }
+    });
 
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) {
@@ -77,50 +84,119 @@ class AnnouncementState extends State<AnnouncementsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: new Icon(Icons.notifications_active),
-        // leading: new Icon(Icons.menu),
-        title: Text((widget.lang.value ? 'Announcements' : 'Annonces')),
-        centerTitle: false,
-        actions: <Widget>[
-          new IconButton(
-            icon: const Icon(Icons.language),
-            tooltip: 'Language',
-            onPressed: () {
-              if(widget.lang.value) {
-                widget.callback(false);
-              } else {
-                widget.callback(true);
+    if(debugVal.value) {
+      return Scaffold(
+        appBar: AppBar(
+          // leading: new Icon(Icons.notifications_active),
+          // leading: new Icon(Icons.menu),
+          title: Text((widget.lang.value ? 'Announcements' : 'Annonces')),
+          centerTitle: false,
+          actions: <Widget>[
+            new IconButton(
+              icon: Icon(Icons.swap_calls),
+              onPressed: () {
+                if(debugVal.value){
+                  debugVal.value = false;
+                } else {
+                  debugVal.value = true;
+                }
+              },
+            ),
+            new IconButton(
+              icon: const Icon(Icons.language),
+              tooltip: 'Language',
+              onPressed: () {
+                if(widget.lang.value) {
+                    widget.callback(false);
+                    sendAnalyticsEvent("change_language", "Changed to french");
+                  } else {
+                    widget.callback(true);
+                    sendAnalyticsEvent("change_language", "Changed to english");
+                  }
+              },
+            ),
+          ],
+        ),
+        drawer: getDrawer(context),
+
+        body: new StreamBuilder(
+          stream: Firestore.instance.collection(collection).snapshots(),
+          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+            if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
+              if(snapshot.data.documents.isEmpty) {
+                return new Center(child: Text(widget.lang.value ? "No Announcements" : "Aucune Annonces",));
               }
-            },
-          ),
-        ],
-      ),
+              var data = snapshot.data.documents.toList(growable: false);
+              List<Widget> info = new List<Widget>();
+              var sortedKeys = data
+              ..sort((k1, k2) => k1['time'].compareTo(k2['time']));
 
-      body: new StreamBuilder(
-        stream: Firestore.instance.collection(collection).snapshots(),
-        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
-            if(snapshot.data.documents.isEmpty) {
-              return new Center(child: Text(widget.lang.value ? "No Announcements" : "Aucune Annonces",));
-            }
-            var data = snapshot.data.documents.toList(growable: false);
-            List<Widget> info = new List<Widget>();
-            var sortedKeys = data
-            ..sort((k1, k2) => k1['time'].compareTo(k2['time']));
+              sortedKeys.reversed.forEach((dynamic v) {
+                        info.add(_AnnouncementCard.fromDocument(v));
+                      });
 
-            sortedKeys.reversed.forEach((dynamic v) {
-                      info.add(_AnnouncementCard.fromDocument(v));
-                    });
+              return new ListView(
+                padding: EdgeInsets.only(top: 10.0),
+                children: info,
+              );
+          }   
+        )
+      );
+    } else {
+      return Scaffold(
+        appBar: AppBar(
+          leading: new Icon(Icons.notifications_active),
+          title: Text((widget.lang.value ? 'Announcements' : 'Annonces')),
+          centerTitle: false,
+          actions: <Widget>[
+            new IconButton(
+              icon: Icon(Icons.swap_calls),
+              onPressed: () {
+                if(debugVal.value){
+                  debugVal.value = false;
+                } else {
+                  debugVal.value = true;
+                }
+              },
+            ),
+            new IconButton(
+              icon: const Icon(Icons.language),
+              tooltip: 'Language',
+              onPressed: () {
+                if(widget.lang.value) {
+                  widget.callback(false);
+                } else {
+                  widget.callback(true);
+                }
+              },
+            ),
+          ],
+        ),
 
-            return new ListView(
-              padding: EdgeInsets.only(top: 10.0),
-              children: info,
-            );
-        }   
-      )
-    );
+        body: new StreamBuilder(
+          stream: Firestore.instance.collection(collection).snapshots(),
+          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+            if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
+              if(snapshot.data.documents.isEmpty) {
+                return new Center(child: Text(widget.lang.value ? "No Announcements" : "Aucune Annonces",));
+              }
+              var data = snapshot.data.documents.toList(growable: false);
+              List<Widget> info = new List<Widget>();
+              var sortedKeys = data
+              ..sort((k1, k2) => k1['time'].compareTo(k2['time']));
+
+              sortedKeys.reversed.forEach((dynamic v) {
+                        info.add(_AnnouncementCard.fromDocument(v));
+                      });
+
+              return new ListView(
+                padding: EdgeInsets.only(top: 10.0),
+                children: info,
+              );
+          }   
+        )
+      );
+    }
   }
 
 }

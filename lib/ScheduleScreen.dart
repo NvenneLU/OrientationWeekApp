@@ -103,6 +103,13 @@ class _ScheduleState extends State<ScheduleScreen> {
               });
       }
     });
+    debugVal.addListener(() {
+      if(this.mounted) {
+        setState(() {
+                  print("Swap");
+                });
+      }
+    });
 
     
   }
@@ -141,7 +148,7 @@ class _ScheduleState extends State<ScheduleScreen> {
       
     );
 
-    if(picked != null && picked != _date) {
+    if((picked != null && picked != _date) || _filter == null) {
       setState(() {
         _date = picked;
 
@@ -160,109 +167,237 @@ class _ScheduleState extends State<ScheduleScreen> {
   Widget build(BuildContext context) {
 
     scaffoldContext = context;
-
-    return Scaffold(
-      appBar: AppBar(
-        leading: new Icon(Icons.event),
-        // leading: new Icon(Icons.menu),
-        title: Text((widget.lang.value ? 'Schedule' : 'Programme')),
-        centerTitle: false,
-        actions: <Widget>[
-          new IconButton(
-            icon: new Icon(Icons.language),
-            tooltip: 'Language',
-            onPressed: () {
-              if(widget.lang.value) {
-                widget.callback(false);
-              } else {
-                widget.callback(true);
-              }
-            },
-          )
-        ],
-      ),
-      body: new Column(
-        children: <Widget>[
-          new Container(
-            padding: EdgeInsets.fromLTRB(14.0, 8.0, 14.0, 0.0),
-            child: new Row( 
-              children: <Widget>[
-                new Expanded(
-                  child: new GestureDetector(
-                    child: new DecoratedBox(
-                      child: new Container(
-                        padding: EdgeInsets.all(14.0),
-                        child: new Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Expanded(
-                              child: Text(_filter == null ? (widget.lang.value ? "Select Date Filter" : "Choisir filtre pour date") : TimeFormat.toDividerTime(_date)),
-                            ),
-                            GestureDetector(
-                              child: Icon(_filter == null ? Icons.event : Icons.cancel, color: Colors.grey[700],),
-                              onTap: () {setState(() {
-                                                              _filter = null;
-                                                            });},
-                            ) 
-                        ],),
-                      ),
-                      decoration: new BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(3.0)),
-                        border: new Border.all(
-                          color: CompanyColors.blue,
-                          width: 2.0
-                        )
-                      ),
-                    ),
-                    onTap: () {_selectDate(context);},
-                  )
-                ),
-              ],
+    if(debugVal.value) {
+      return Scaffold(
+        appBar: AppBar(
+          // leading: new Icon(Icons.event),
+          // leading: new Icon(Icons.menu),
+          title: Text((widget.lang.value ? 'Schedule' : 'Programme')),
+          centerTitle: false,
+          actions: <Widget>[
+            new IconButton(
+              icon: Icon(Icons.swap_calls),
+              onPressed: () {
+                if(debugVal.value){
+                  debugVal.value = false;
+                } else {
+                  debugVal.value = true;
+                }
+              },
             ),
-          ),
-          new Expanded(
-            child: new StreamBuilder(
-              stream: Firestore.instance.collection("events" + (widget.lang.value ? 'E' : 'F')).snapshots(),
-              builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                if (!snapshot.hasData) return new Center(child: CircularProgressIndicator());
-                  var data = snapshot.data.documents.toList(growable: false);
-                  List<Widget> info = new List<Widget>();
-                  var sortedKeys = data
-                  ..sort((k1, k2) => k1['startTime'].compareTo(k2['startTime']));
-                  DateTime tempDate = sortedKeys[0]['startTime'];
-                  if(_filter != null) {
-                    info.add(_ScheduleDivider(_filter));
-                    _dates.add(DateTime(_filter.year, _filter.month, _filter.day));
-                    _date = DateTime(_filter.year, _filter.month, _filter.day);
+            new IconButton(
+              icon: new Icon(Icons.language),
+              tooltip: 'Language',
+              onPressed: () {
+                if(widget.lang.value) {
+                    widget.callback(false);
+                    sendAnalyticsEvent("change_language", "Changed to french");
                   } else {
-                    info.add(_ScheduleDivider(tempDate));
-                    _dates.add(DateTime(tempDate.year, tempDate.month, tempDate.day));
-                    _date = DateTime(tempDate.year, tempDate.month, tempDate.day);
+                    widget.callback(true);
+                    sendAnalyticsEvent("change_language", "Changed to english");
                   }
-                  sortedKeys.forEach((dynamic v) {
-                            if(_filter == null) {
-                              if(tempDate.day != v['startTime'].day) {
-                                tempDate = v['startTime'];
-                                info.add(_ScheduleDivider(tempDate));
-                                _dates.add(DateTime(tempDate.year, tempDate.month, tempDate.day));
-                              }
-                              info.add(ScheduleCard(event: v['name'], desc: v['desc'], attendee: v['attendee'], location: v['location'], endDate: v['endTime'], startDate: v['startTime'], id: v.documentID,));
-                            } else if (_filter.day == v['startTime'].day && _filter.month == v['startTime'].month) {
-                              info.add(ScheduleCard(event: v['name'], desc: v['desc'], attendee: v['attendee'], location: v['location'], endDate: v['endTime'], startDate: v['startTime'], id: v.documentID,));
-                            }
-                          });
-
-                  return new ListView(
-                    controller: _controller,
-                    padding: EdgeInsets.only(top: 10.0),
-                    children: info,
-                  );
-              }   
+              },
             ),
-          )
-        ],
-      )
-    );
+            
+          ],
+        ),
+        drawer: getDrawer(context),
+        body: new Column(
+          children: <Widget>[
+            new Container(
+              padding: EdgeInsets.fromLTRB(14.0, 8.0, 14.0, 0.0),
+              child: new Row( 
+                children: <Widget>[
+                  new Expanded(
+                    child: new GestureDetector(
+                      child: new DecoratedBox(
+                        child: new Container(
+                          padding: EdgeInsets.all(14.0),
+                          child: new Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Expanded(
+                                child: Text(_filter == null ? (widget.lang.value ? "Select Date Filter" : "Choisir filtre pour date") : TimeFormat.toDividerTime(_date)),
+                              ),
+                              GestureDetector(
+                                child: Icon(_filter == null ? Icons.event : Icons.cancel, color: Colors.grey[700],),
+                                onTap: () {setState(() {
+                                                                _filter = null;
+                                                              });},
+                              ) 
+                          ],),
+                        ),
+                        decoration: new BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(3.0)),
+                          border: new Border.all(
+                            color: CompanyColors.blue,
+                            width: 2.0
+                          )
+                        ),
+                      ),
+                      onTap: () {_selectDate(context);},
+                    )
+                  ),
+                ],
+              ),
+            ),
+            new Expanded(
+              child: new StreamBuilder(
+                stream: Firestore.instance.collection("events" + (widget.lang.value ? 'E' : 'F')).snapshots(),
+                builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                  if (!snapshot.hasData) return new Center(child: CircularProgressIndicator());
+                    var data = snapshot.data.documents.toList(growable: false);
+                    List<Widget> info = new List<Widget>();
+                    var sortedKeys = data
+                    ..sort((k1, k2) => k1['startTime'].compareTo(k2['startTime']));
+                    DateTime tempDate = sortedKeys[0]['startTime'];
+                    if(_filter != null) {
+                      info.add(_ScheduleDivider(_filter));
+                      _dates.add(DateTime(_filter.year, _filter.month, _filter.day));
+                      _date = DateTime(_filter.year, _filter.month, _filter.day);
+                    } else {
+                      info.add(_ScheduleDivider(tempDate));
+                      _dates.add(DateTime(tempDate.year, tempDate.month, tempDate.day));
+                      _date = DateTime(tempDate.year, tempDate.month, tempDate.day);
+                    }
+                    sortedKeys.forEach((dynamic v) {
+                              if(_filter == null) {
+                                if(tempDate.day != v['startTime'].day) {
+                                  tempDate = v['startTime'];
+                                  info.add(_ScheduleDivider(tempDate));
+                                  _dates.add(DateTime(tempDate.year, tempDate.month, tempDate.day));
+                                }
+                                info.add(ScheduleCard(event: v['name'], desc: v['desc'], attendee: v['attendee'], location: v['location'], endDate: v['endTime'], startDate: v['startTime'], id: v.documentID,));
+                              } else if (_filter.day == v['startTime'].day && _filter.month == v['startTime'].month) {
+                                info.add(ScheduleCard(event: v['name'], desc: v['desc'], attendee: v['attendee'], location: v['location'], endDate: v['endTime'], startDate: v['startTime'], id: v.documentID,));
+                              }
+                            });
+
+                    return new ListView(
+                      controller: _controller,
+                      padding: EdgeInsets.only(top: 10.0),
+                      children: info,
+                    );
+                }   
+              ),
+            )
+          ],
+        )
+      );
+    } else {
+      return Scaffold(
+        appBar: AppBar(
+          leading: new Icon(Icons.event),
+          title: Text((widget.lang.value ? 'Schedule' : 'Programme')),
+          centerTitle: false,
+          actions: <Widget>[
+            new IconButton(
+              icon: Icon(Icons.swap_calls),
+              onPressed: () {
+                if(debugVal.value){
+                  debugVal.value = false;
+                } else {
+                  debugVal.value = true;
+                }
+              },
+            ),
+            new IconButton(
+              icon: new Icon(Icons.language),
+              tooltip: 'Language',
+              onPressed: () {
+                if(widget.lang.value) {
+                  widget.callback(false);
+                } else {
+                  widget.callback(true);
+                }
+              },
+            ),
+            
+          ],
+        ),
+        body: new Column(
+          children: <Widget>[
+            new Container(
+              padding: EdgeInsets.fromLTRB(14.0, 8.0, 14.0, 0.0),
+              child: new Row( 
+                children: <Widget>[
+                  new Expanded(
+                    child: new GestureDetector(
+                      child: new DecoratedBox(
+                        child: new Container(
+                          padding: EdgeInsets.all(14.0),
+                          child: new Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Expanded(
+                                child: Text(_filter == null ? (widget.lang.value ? "Select Date Filter" : "Choisir filtre pour date") : TimeFormat.toDividerTime(_date)),
+                              ),
+                              GestureDetector(
+                                child: Icon(_filter == null ? Icons.event : Icons.cancel, color: Colors.grey[700],),
+                                onTap: () {setState(() {
+                                                                _filter = null;
+                                                              });},
+                              ) 
+                          ],),
+                        ),
+                        decoration: new BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(3.0)),
+                          border: new Border.all(
+                            color: CompanyColors.blue,
+                            width: 2.0
+                          )
+                        ),
+                      ),
+                      onTap: () {_selectDate(context);},
+                    )
+                  ),
+                ],
+              ),
+            ),
+            new Expanded(
+              child: new StreamBuilder(
+                stream: Firestore.instance.collection("events" + (widget.lang.value ? 'E' : 'F')).snapshots(),
+                builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                  if (!snapshot.hasData) return new Center(child: CircularProgressIndicator());
+                    var data = snapshot.data.documents.toList(growable: false);
+                    List<Widget> info = new List<Widget>();
+                    var sortedKeys = data
+                    ..sort((k1, k2) => k1['startTime'].compareTo(k2['startTime']));
+                    DateTime tempDate = sortedKeys[0]['startTime'];
+                    if(_filter != null) {
+                      info.add(_ScheduleDivider(_filter));
+                      _dates.add(DateTime(_filter.year, _filter.month, _filter.day));
+                      _date = DateTime(_filter.year, _filter.month, _filter.day);
+                    } else {
+                      info.add(_ScheduleDivider(tempDate));
+                      _dates.add(DateTime(tempDate.year, tempDate.month, tempDate.day));
+                      _date = DateTime(tempDate.year, tempDate.month, tempDate.day);
+                    }
+                    sortedKeys.forEach((dynamic v) {
+                              if(_filter == null) {
+                                if(tempDate.day != v['startTime'].day) {
+                                  tempDate = v['startTime'];
+                                  info.add(_ScheduleDivider(tempDate));
+                                  _dates.add(DateTime(tempDate.year, tempDate.month, tempDate.day));
+                                }
+                                info.add(ScheduleCard(event: v['name'], desc: v['desc'], attendee: v['attendee'], location: v['location'], endDate: v['endTime'], startDate: v['startTime'], id: v.documentID,));
+                              } else if (_filter.day == v['startTime'].day && _filter.month == v['startTime'].month) {
+                                info.add(ScheduleCard(event: v['name'], desc: v['desc'], attendee: v['attendee'], location: v['location'], endDate: v['endTime'], startDate: v['startTime'], id: v.documentID,));
+                              }
+                            });
+
+                    return new ListView(
+                      controller: _controller,
+                      padding: EdgeInsets.only(top: 10.0),
+                      children: info,
+                    );
+                }   
+              ),
+            )
+          ],
+        )
+      );
+    }
   }
 }
 

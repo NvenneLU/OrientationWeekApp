@@ -102,6 +102,13 @@ class ImportantDatesState extends State<ImportantDatesScreen> {
               });
       }
     });
+    debugVal.addListener(() {
+      if(this.mounted) {
+        setState(() {
+                  print("Swap");
+                });
+      }
+    });
   }
 
 
@@ -170,44 +177,105 @@ class ImportantDatesState extends State<ImportantDatesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: new Icon(Icons.star),
-        // leading: new Icon(Icons.menu),
-        title: Text((widget.lang.value ? 'Important Dates' : 'Dates Importantes')),
-        centerTitle: false,
-        actions: <Widget>[
-          new IconButton(
-            icon: const Icon(Icons.language),
-            tooltip: 'Language',
-            onPressed: () {
-              if(widget.lang.value) {
-                widget.callback(false);
-              } else {
-                widget.callback(true);
-              }
-            },
-          ),
-        ],
-      ),
-
-      body: new FutureBuilder(
-        future: _getImportedDates(),
-        builder: (BuildContext context, AsyncSnapshot snapshot) {
-          switch(snapshot.connectionState) {
-            case ConnectionState.none: return new Text('Error');
-            case ConnectionState.waiting: return new Center(child: new CircularProgressIndicator(),);
-            default:
-              if(snapshot.hasError) {
-                return Text('Error ${snapshot.error}');
-              } else {
-                return _createListView(snapshot.data, context);
-              }
-          }
-        
-        },
-      ),
-    );
+    if(debugVal.value) {
+      return Scaffold(
+        appBar: AppBar(
+          // leading: new Icon(Icons.star),
+          // leading: new Icon(Icons.menu),
+          title: Text((widget.lang.value ? 'Important Dates' : 'Dates Importantes')),
+          centerTitle: false,
+          actions: <Widget>[
+            new IconButton(
+              icon: Icon(Icons.swap_calls),
+              onPressed: () {
+                if(debugVal.value){
+                  debugVal.value = false;
+                } else {
+                  debugVal.value = true;
+                }
+              },
+            ),
+            new IconButton(
+              icon: const Icon(Icons.language),
+              tooltip: 'Language',
+              onPressed: () {
+                if(widget.lang.value) {
+                    widget.callback(false);
+                    sendAnalyticsEvent("change_language", "Changed to french");
+                  } else {
+                    widget.callback(true);
+                    sendAnalyticsEvent("change_language", "Changed to english");
+                  }
+              },
+            ),
+          ],
+        ),
+        drawer: getDrawer(context),
+        body: new FutureBuilder(
+          future: _getImportedDates(),
+          builder: (BuildContext context, AsyncSnapshot snapshot) {
+            switch(snapshot.connectionState) {
+              case ConnectionState.none: return new Text('Error');
+              case ConnectionState.waiting: return new Center(child: new CircularProgressIndicator(),);
+              default:
+                if(snapshot.hasError) {
+                  return Text('Error ${snapshot.error}');
+                } else {
+                  return _createListView(snapshot.data, context);
+                }
+            }
+          
+          },
+        ),
+      );
+    } else {
+      return Scaffold(
+        appBar: AppBar(
+          leading: new Icon(Icons.star),
+          title: Text((widget.lang.value ? 'Important Dates' : 'Dates Importantes')),
+          centerTitle: false,
+          actions: <Widget>[
+            new IconButton(
+              icon: Icon(Icons.swap_calls),
+              onPressed: () {
+                if(debugVal.value){
+                  debugVal.value = false;
+                } else {
+                  debugVal.value = true;
+                }
+              },
+            ),
+            new IconButton(
+              icon: const Icon(Icons.language),
+              tooltip: 'Language',
+              onPressed: () {
+                if(widget.lang.value) {
+                  widget.callback(false);
+                } else {
+                  widget.callback(true);
+                }
+              },
+            ),
+          ],
+        ),
+        body: new FutureBuilder(
+          future: _getImportedDates(),
+          builder: (BuildContext context, AsyncSnapshot snapshot) {
+            switch(snapshot.connectionState) {
+              case ConnectionState.none: return new Text('Error');
+              case ConnectionState.waiting: return new Center(child: new CircularProgressIndicator(),);
+              default:
+                if(snapshot.hasError) {
+                  return Text('Error ${snapshot.error}');
+                } else {
+                  return _createListView(snapshot.data, context);
+                }
+            }
+          
+          },
+        ),
+      );
+    }
   }
 }
 

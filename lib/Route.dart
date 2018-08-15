@@ -4,17 +4,266 @@ import 'ScheduleScreen.dart';
 import 'InfoScreen.dart';
 import 'AnnouncementsScreen.dart';
 import 'ImportantDatesScreen.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'main.dart';
+import 'dart:async';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
 
 int _currentIndex = 2;
 
 ValueNotifier<bool> english = new ValueNotifier<bool>(true);
+ValueNotifier<bool> debugVal = new ValueNotifier<bool>(true);
 typedef LanguageCallback(bool en);
 
 
-ScheduleScreen scheduleScreen = new ScheduleScreen(callback: (en) => english.value = en, lang: english);
+ScheduleScreen scheduleScreen = new ScheduleScreen(callback: (en) => english.value = en, lang: english,);
 ImportantDatesScreen importantDatesScreen = new ImportantDatesScreen(callback: (en) => english.value = en, lang: english);
 AnnouncementsScreen announcementsScreen = new AnnouncementsScreen(callback: (en) => english.value = en, lang: english);
 InfoScreen infoScreen = new InfoScreen(callback: (en) => english.value = en, lang: english);
+
+
+final String svgEnglish = '''
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 267.7 50" style="enable-background:new 0 0 267.7 50;" xml:space="preserve">
+<g>
+	<g>
+		<g>
+			<polyline class="st0" points="58.1,4.3 62.1,4.3 62.1,16.3 67.1,16.3 67.1,19.4 58.1,19.4 58.1,4.3 			"/>
+			<path class="st0" d="M78.4,16.9c0,0.9,0.1,1.8,0.1,2.5h-3.5c0-0.5-0.1-1-0.1-1.6c-1.1,1.3-2,1.8-3.4,1.8c-2,0-3.4-1.4-3.4-3.6
+				c0-2.5,1.9-3.8,5.8-3.8h1v-0.3c0-0.7-0.6-1.5-2.1-1.5c-1.2,0-2.4,0.5-3.2,1.1l-0.1-2.8c0.9-0.3,2.3-0.7,4.2-0.7
+				c4,0,4.7,1.9,4.7,4.2V16.9z M75,13.9h-0.5c-1.7,0-2.9,0.5-2.9,1.9c0,1,0.5,1.4,1.3,1.4c1.8,0,2-1.8,2-2.9V13.9"/>
+			<path class="st0" d="M90.8,17.5c0,0.8,0.1,1.6,0.1,1.9h-3.7c-0.1-0.5-0.1-1.3-0.1-1.9h0c-0.2,0.6-1,2.1-3.2,2.1
+				c-1.9,0-3.4-1.1-3.4-3.6V8.1h3.9v6.8c0,1.1,0.3,1.6,1.1,1.6c1.1,0,1.4-1,1.4-1.9V8.1h3.9V17.5"/>
+			<path class="st0" d="M93,11.4c0-1.6-0.1-2.7-0.1-3.3h3.7c0.1,0.5,0.1,1.3,0.1,1.9h0c0.3-0.9,1-2.1,2.9-2.1c0.3,0,0.4,0,0.6,0.1
+				v3.4c-0.2-0.1-0.7-0.1-1.2-0.1c-1.3,0-2.1,1.1-2.1,2.6v5.6H93V11.4"/>
+			<path class="st0" d="M104.8,14.8c0.1,1.8,1.4,2.4,2.8,2.4c1.1,0,2.3-0.5,3.3-0.9l0.1,2.7c-0.9,0.3-2.4,0.6-3.9,0.6
+				c-4.6,0-5.9-3-5.9-5.9c0-3.1,1.8-5.8,5.2-5.8c3.5,0,5.2,2.8,5.2,5.9v1.1H104.8z M108,12.8v-0.3c0-1.5-0.4-2.2-1.6-2.2
+				c-1.1,0-1.8,1-1.8,2.5H108"/>
+			<path class="st0" d="M113.4,10.4c0-0.8-0.1-1.8-0.1-2.3h3.7C117,8.6,117,9.4,117,10h0c0.2-0.6,1-2.1,3.2-2.1
+				c1.9,0,3.4,1.1,3.4,3.6v7.9h-3.9v-6.8c0-1.1-0.3-1.6-1.1-1.6c-1,0-1.4,1-1.4,2.2v6.2h-3.9V10.4"/>
+			<path class="st0" d="M125,8.1h1.9V5.8l3.9-1.2v3.6h2.2v2.6h-2.2v4.8c0,1,0.6,1.4,1.3,1.4c0.4,0,0.7-0.1,0.9-0.2l0.1,2.6
+				c-0.5,0.1-1.4,0.3-2.6,0.3c-2.1,0-3.6-1.2-3.6-3.3v-5.6H125V8.1"/>
+			<path class="st0" d="M135.1,3.2h3.9v3.2h-3.9V3.2z M135.1,8.1h3.9v11.3h-3.9V8.1z"/>
+			<path class="st0" d="M151.1,16.9c0,0.9,0.1,1.8,0.1,2.5h-3.5c0-0.5-0.1-1-0.1-1.6c-1.1,1.3-2,1.8-3.4,1.8c-2,0-3.4-1.4-3.4-3.6
+				c0-2.5,1.9-3.8,5.8-3.8h1v-0.3c0-0.7-0.6-1.5-2.1-1.5c-1.2,0-2.4,0.5-3.2,1.1l-0.1-2.8c0.9-0.3,2.3-0.7,4.2-0.7
+				c4,0,4.7,1.9,4.7,4.2V16.9z M147.7,13.9h-0.5c-1.7,0-2.9,0.5-2.9,1.9c0,1,0.5,1.4,1.3,1.4c1.8,0,2-1.8,2-2.9V13.9"/>
+			<path class="st0" d="M153.3,10.4c0-0.8-0.1-1.8-0.1-2.3h3.7c0.1,0.5,0.1,1.3,0.1,1.9h0c0.2-0.6,1-2.1,3.2-2.1
+				c1.9,0,3.4,1.1,3.4,3.6v7.9h-3.9v-6.8c0-1.1-0.3-1.6-1.1-1.6c-1,0-1.4,1-1.4,2.2v6.2h-3.9V10.4"/>
+			<path class="st0" d="M166.3,4.3h1.3v9.5c0,2.3,0.4,4.5,3.1,4.5c2.8,0,3.1-2.4,3.1-4.5V4.3h1.3v9.5c0,3-1,5.7-4.5,5.7
+				s-4.5-2.5-4.5-5.7V4.3"/>
+			<path class="st0" d="M178.5,11.8c0-1.1-0.1-2.3-0.1-3.4h1.2c0,0.5,0.1,0.8,0.1,1.6h0c0.3-0.5,1-1.8,2.8-1.8c3,0,3,3,3,3.8v7.4
+				h-1.3V12c0-0.8,0-2.6-2.1-2.6c-1.5,0-2.5,1.4-2.5,3.2v6.8h-1.3V11.8"/>
+			<path class="st0" d="M188.5,4h1.5v1.9h-1.5V4z M188.6,8.4h1.3v11h-1.3V8.4z"/>
+			<polyline class="st0" points="191.7,8.4 193,8.4 195.6,18 195.7,18 198.4,8.4 199.6,8.4 196.4,19.4 194.9,19.4 191.7,8.4 			"/>
+			<path class="st0" d="M202.1,14.3c0,4.1,2.6,4.1,3.1,4.1c0.7,0,1.7-0.3,2.4-0.9l0.1,1.4c-0.5,0.3-1.3,0.6-2.6,0.6
+				c-4.3,0-4.3-4.6-4.3-5.7c0-4.1,2.1-5.7,3.9-5.7c3.2,0,3.5,3.4,3.5,6.1H202.1z M206.8,13.1c0-2.9-1.2-3.7-2.2-3.7
+				c-1.7,0-2.5,2.3-2.5,3.7H206.8"/>
+			<path class="st0" d="M210.5,11.8c0-1.1-0.1-2.3-0.1-3.4h1.2c0,0.6,0.1,1.3,0.1,1.8h0c0.8-1.6,1.7-1.9,2.9-1.9v1.3
+				c-2,0-2.9,0.9-2.9,2.9v6.9h-1.3V11.8"/>
+			<path class="st0" d="M221.1,9.8c-0.6-0.2-1.2-0.5-1.9-0.5c-1.3,0-1.9,1-1.9,1.7c0,1,0.4,1.2,1.9,2.1c1.5,0.8,2.7,1.4,2.7,3.2
+				c0,2-1.4,3.2-3.3,3.2c-1.4,0-2.1-0.3-2.8-0.5l0.2-1.4c0.4,0.3,1.5,0.8,2.5,0.8c1.2,0,2-0.9,2-1.9c0-1.1-0.7-1.5-2-2.1
+				c-1.9-0.9-2.6-1.5-2.6-3.1c0-2.1,1.8-3,3.2-3c0.7,0,1.6,0.2,2,0.3L221.1,9.8"/>
+			<path class="st0" d="M224.1,4h1.5v1.9h-1.5V4z M224.3,8.4h1.3v11h-1.3V8.4z"/>
+			<path class="st0" d="M230.4,5.8v2.6h2.2v1.2h-2.2v7.2c0,0.9,0.2,1.7,1.2,1.7c0.6,0,0.8-0.1,1-0.2v1.3c-0.3,0.1-0.9,0.2-1.4,0.2
+				c-1.6,0-2.1-1.3-2.1-2.5V9.5h-1.6V8.4h1.6V6.2L230.4,5.8"/>
+			<path class="st0" d="M237.7,17.5L237.7,17.5l2.5-9.2h1.3l-3.6,13.1c-0.4,1.5-0.8,2.7-2.5,2.7c-0.3,0-0.5,0-0.8-0.1l0.1-1.3
+				c0.2,0.2,0.6,0.2,0.9,0.2c0.6,0,0.9-0.6,1.1-1.3l0.6-2.1l-3.2-11.3h1.3L237.7,17.5"/>
+		</g>
+		<g>
+			<path class="st0" d="M58.1,23.1h1.3v9.5c0,2.3,0.4,4.5,3.1,4.5c2.8,0,3.1-2.4,3.1-4.5v-9.5H67v9.5c0,3-1,5.7-4.5,5.7
+				c-3.5,0-4.5-2.5-4.5-5.7V23.1"/>
+			<path class="st0" d="M70.2,30.6c0-1.1-0.1-2.3-0.1-3.4h1.2c0,0.5,0.1,0.8,0.1,1.6h0c0.3-0.5,1-1.8,2.8-1.8c3,0,3,3,3,3.8v7.4H76
+				v-7.4c0-0.8,0-2.6-2.1-2.6c-1.5,0-2.5,1.4-2.5,3.2v6.8h-1.3V30.6"/>
+			<path class="st0" d="M80.2,22.8h1.5v1.9h-1.5V22.8z M80.3,27.2h1.3v11h-1.3V27.2z"/>
+			<polyline class="st0" points="83.4,27.2 84.7,27.2 87.3,36.8 87.4,36.8 90.1,27.2 91.3,27.2 88.1,38.2 86.6,38.2 83.4,27.2 			
+				"/>
+			<path class="st0" d="M93.8,33.1c0,4.1,2.6,4.1,3.1,4.1c0.7,0,1.7-0.3,2.4-0.9l0.1,1.4c-0.5,0.3-1.3,0.6-2.6,0.6
+				c-4.3,0-4.3-4.6-4.3-5.7c0-4.1,2.1-5.7,3.9-5.7c3.2,0,3.5,3.4,3.5,6.1H93.8z M98.5,31.9c0-2.9-1.2-3.7-2.2-3.7
+				c-1.7,0-2.5,2.3-2.5,3.7H98.5"/>
+			<path class="st0" d="M102.2,30.6c0-1.1-0.1-2.3-0.1-3.4h1.2c0,0.6,0.1,1.3,0.1,1.8h0c0.8-1.6,1.7-1.9,2.9-1.9v1.3
+				c-2,0-2.9,0.9-2.9,2.9v6.9h-1.3V30.6"/>
+			<path class="st0" d="M112.8,28.6c-0.6-0.2-1.2-0.5-1.9-0.5c-1.3,0-1.9,1-1.9,1.8c0,1,0.4,1.2,1.9,2.1c1.5,0.8,2.7,1.4,2.7,3.2
+				c0,2-1.4,3.2-3.3,3.2c-1.4,0-2.1-0.3-2.8-0.5l0.2-1.4c0.4,0.3,1.5,0.8,2.5,0.8c1.2,0,2-0.9,2-1.9c0-1.1-0.7-1.5-2-2.1
+				c-1.9-0.9-2.6-1.5-2.6-3.1c0-2.1,1.8-3,3.2-3c0.7,0,1.6,0.2,2,0.3L112.8,28.6"/>
+			<path class="st0" d="M115.8,22.8h1.5v1.9h-1.5V22.8z M116,27.2h1.3v11H116V27.2z"/>
+			<path class="st0" d="M122.1,24.6v2.6h2.2v1.2h-2.2v7.2c0,0.9,0.2,1.7,1.2,1.7c0.6,0,0.8-0.1,1-0.2v1.3c-0.3,0.1-0.9,0.2-1.4,0.2
+				c-1.6,0-2.1-1.3-2.1-2.5v-7.5h-1.6v-1.2h1.6V25L122.1,24.6"/>
+			<path class="st0" d="M127,33.1c0,4.1,2.6,4.1,3.1,4.1c0.7,0,1.7-0.3,2.4-0.9l0.1,1.4c-0.5,0.3-1.3,0.6-2.6,0.6
+				c-4.3,0-4.3-4.6-4.3-5.7c0-4.1,2.1-5.7,3.9-5.7c3.2,0,3.5,3.4,3.5,6.1H127z M131.8,31.9c0-2.9-1.2-3.7-2.2-3.7
+				c-1.7,0-2.5,2.3-2.5,3.7H131.8z M131.6,22.5l-2.1,3.1h-1.1l1.6-3.1H131.6"/>
+			<polyline class="st0" points="135.4,23.1 139.4,23.1 139.4,35.1 144.4,35.1 144.4,38.2 135.4,38.2 135.4,23.1 			"/>
+			<path class="st0" d="M155.7,35.7c0,0.9,0.1,1.8,0.1,2.5h-3.5c0-0.5-0.1-1-0.1-1.6c-1.1,1.3-2,1.8-3.4,1.8c-2,0-3.4-1.4-3.4-3.6
+				c0-2.5,1.9-3.8,5.8-3.8h1v-0.3c0-0.7-0.6-1.5-2.1-1.5c-1.2,0-2.4,0.5-3.2,1.1l-0.1-2.8c0.9-0.3,2.3-0.7,4.2-0.7
+				c4,0,4.7,1.9,4.7,4.2V35.7z M152.3,32.7h-0.5c-1.7,0-2.9,0.5-2.9,1.9c0,1,0.5,1.4,1.3,1.4c1.8,0,2-1.8,2-2.9V32.7"/>
+			<path class="st0" d="M168.1,36.3c0,0.8,0.1,1.6,0.1,1.9h-3.7c-0.1-0.5-0.1-1.3-0.1-1.9h0c-0.2,0.6-1,2.1-3.2,2.1
+				c-1.9,0-3.4-1.1-3.4-3.6v-7.9h3.9v6.8c0,1.1,0.3,1.6,1.1,1.6c1.1,0,1.4-1,1.4-1.9v-6.5h3.9V36.3"/>
+			<path class="st0" d="M170.3,30.2c0-1.6-0.1-2.7-0.1-3.3h3.7c0.1,0.5,0.1,1.3,0.1,1.9h0c0.3-0.9,1-2.1,2.9-2.1
+				c0.3,0,0.4,0,0.6,0.1v3.4c-0.2-0.1-0.7-0.1-1.2-0.1c-1.3,0-2.1,1.1-2.1,2.6v5.6h-3.9V30.2"/>
+			<path class="st0" d="M182.1,33.6c0.1,1.8,1.4,2.4,2.8,2.4c1.1,0,2.3-0.5,3.3-0.9l0.1,2.7c-0.9,0.3-2.4,0.6-3.9,0.6
+				c-4.6,0-5.9-3-5.9-5.9c0-3.1,1.8-5.8,5.2-5.8c3.5,0,5.2,2.8,5.2,5.9v1.1H182.1z M185.3,31.6v-0.3c0-1.5-0.4-2.2-1.6-2.2
+				c-1.1,0-1.8,1-1.8,2.6H185.3"/>
+			<path class="st0" d="M190.7,29.2c0-0.8-0.1-1.8-0.1-2.3h3.7c0.1,0.5,0.1,1.3,0.1,1.9h0c0.2-0.6,1-2.1,3.2-2.1
+				c1.9,0,3.4,1.1,3.4,3.6v7.9h-3.9v-6.8c0-1.1-0.3-1.6-1.1-1.6c-1,0-1.4,1-1.4,2.2v6.2h-3.9V29.2"/>
+			<path class="st0" d="M202.3,26.9h1.9v-2.4l3.9-1.2v3.6h2.2v2.6h-2.2v4.8c0,1,0.6,1.4,1.3,1.4c0.4,0,0.7-0.1,0.9-0.2l0.1,2.6
+				c-0.5,0.1-1.4,0.3-2.6,0.3c-2.1,0-3.6-1.2-3.6-3.3v-5.6h-1.9V26.9"/>
+			<path class="st0" d="M212.4,22h3.9v3.2h-3.9V22z M212.4,26.9h3.9v11.3h-3.9V26.9z"/>
+			<path class="st0" d="M221.9,33.6c0.1,1.8,1.4,2.4,2.8,2.4c1.1,0,2.3-0.5,3.3-0.9l0.1,2.7c-0.9,0.3-2.4,0.6-3.9,0.6
+				c-4.6,0-5.9-3-5.9-5.9c0-3.1,1.8-5.8,5.2-5.8c3.5,0,5.2,2.8,5.2,5.9v1.1H221.9z M225.2,31.6v-0.3c0-1.5-0.4-2.2-1.6-2.2
+				c-1.1,0-1.8,1-1.8,2.6H225.2"/>
+			<path class="st0" d="M230.6,29.2c0-0.8-0.1-1.8-0.1-2.3h3.7c0.1,0.5,0.1,1.3,0.1,1.9h0c0.2-0.6,1-2.1,3.2-2.1
+				c1.9,0,3.4,1.1,3.4,3.6v7.9H237v-6.8c0-1.1-0.3-1.6-1.1-1.6c-1,0-1.4,1-1.4,2.2v6.2h-3.9V29.2"/>
+			<path class="st0" d="M243,29.2c0-0.8-0.1-1.8-0.1-2.3h3.7c0.1,0.5,0.1,1.3,0.1,1.9h0c0.2-0.6,1-2.1,3.2-2.1
+				c1.9,0,3.4,1.1,3.4,3.6v7.9h-3.9v-6.8c0-1.1-0.3-1.6-1.1-1.6c-1,0-1.4,1-1.4,2.2v6.2H243V29.2"/>
+			<path class="st0" d="M258.8,33.6c0.1,1.8,1.4,2.4,2.8,2.4c1.1,0,2.3-0.5,3.3-0.9l0.1,2.7c-0.9,0.3-2.4,0.6-3.9,0.6
+				c-4.6,0-5.9-3-5.9-5.9c0-3.1,1.8-5.8,5.2-5.8c3.5,0,5.2,2.8,5.2,5.9v1.1H258.8z M262,31.6v-0.3c0-1.5-0.4-2.2-1.6-2.2
+				c-1.1,0-1.7,1-1.7,2.6H262"/>
+		</g>
+	</g>
+	<g>
+		<path class="st0" d="M43.3,2.9c-7-1.4-13.6-2-20-2c-6.4,0-13,0.7-20,2L2.1,3.1v12.2c0,4.3,0.7,15.1,7,23.8l1.2,1.5
+			c3.3,3.9,7.5,6.7,12.5,8.3l0.4,0.1l0.4-0.1c5-1.6,9.2-4.4,12.5-8.3l1.2-1.5c6.3-8.6,7-19.5,7-23.8V3.1L43.3,2.9z M23.3,47.6
+			c-5.4-1.7-9.3-4.7-12.1-8.1c2.6-3.9,7.1-6.5,12.1-6.5c5,0,9.5,2.6,12.1,6.5C32.5,43,28.6,45.9,23.3,47.6z M43,15.4
+			c0,3.4-0.5,14.4-6.7,22.9c-2.7-3.7-6.9-6.3-11.7-6.6c0.6-1.4,1.2-2.8,1.7-4.2c0.7-0.6,0.6-1.7,1.9-2.4c2.2-1.1,6.4-2.2,9.4-2.3
+			c-3-1-6.8-1.1-9.7-0.5c0.2-0.7,0.4-1.3,0.5-2c1.8-0.5,3.7-0.8,5.3-0.8c-1.1-0.4-2.4-0.6-3.6-0.7c0.3-0.5,0.5-1.3,1.4-1.7
+			c1.9-0.9,5.5-1.9,8.1-1.9c-3.2-1-7.4-0.9-10,0c0-0.2,0-0.3,0.1-0.5c1.9-0.6,4.2-1,5.9-1.1c-1.8-0.6-3.8-0.8-5.7-0.7
+			c0.2-2,0.2-3.5-0.1-4.3l-0.6,0.2c0,1.4-0.1,2.8-0.3,4.2c-2.5,0.2-4.6,0.8-5.5,1.8c-1,1.1-1,3,1.1,3.2c2.1,0.2,1.3-1.5,2.9-2.4
+			c0.3-0.2,0.7-0.3,1.1-0.5c0,0.2-0.1,0.4-0.1,0.6c-0.4,0.2-0.8,0.4-1,0.7C26.7,17,26.5,18,27,18.7c-3.3,0.1-6.3,0.9-7.5,2.1
+			c-1.2,1.3-1.1,3.5,1.3,3.7c2.4,0.2,1.5-1.8,3.4-2.7c0.7-0.4,1.7-0.7,2.8-1.1c-0.2,0.6-0.4,1.3-0.7,1.9c-1.3,0.4-2.3,0.9-2.9,1.5
+			c-1.1,1.2-1.1,3.2,0.8,3.6c-0.6,1.4-1.3,2.7-1.9,3.9c-5,0.3-9.4,2.9-12.1,6.7C4,29.8,3.5,18.7,3.5,15.4V4.3c6.3-1.2,12.9-2,19.7-2
+			c6.8,0,13.4,0.8,19.7,2V15.4z"/>
+		<path class="st0" d="M28.8,8.1c-1.5,0.7-0.8,2.3-2.7,2.1c-1.9-0.2-1.9-1.9-1-2.9c1.5-1.6,7.1-2.3,11.1-1
+			C33.8,6.4,30.5,7.2,28.8,8.1"/>
+	</g>
+</g>
+</svg>
+''';
+
+final String svgFrench = '''
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 267.7 50" style="enable-background:new 0 0 267.7 50;" xml:space="preserve">
+<g>
+	<g>
+		<g>
+			<polyline class="st0" points="58.1,23.1 62.1,23.1 62.1,35.1 67.1,35.1 67.1,38.2 58.1,38.2 58.1,23.1 			"/>
+			<path class="st0" d="M78.4,35.7c0,0.9,0.1,1.8,0.1,2.5h-3.5c0-0.5-0.1-1-0.1-1.6c-1.1,1.3-2,1.8-3.4,1.8c-2,0-3.4-1.4-3.4-3.6
+				c0-2.5,1.9-3.8,5.8-3.8h1v-0.3c0-0.7-0.6-1.5-2.1-1.5c-1.2,0-2.4,0.5-3.2,1.1l-0.1-2.8c0.9-0.3,2.3-0.7,4.2-0.7
+				c4,0,4.7,1.9,4.7,4.2V35.7z M75,32.7h-0.5c-1.7,0-2.9,0.5-2.9,1.9c0,1,0.5,1.4,1.3,1.4c1.8,0,2-1.8,2-2.9V32.7"/>
+			<path class="st0" d="M90.8,36.3c0,0.8,0.1,1.6,0.1,1.9h-3.7c-0.1-0.5-0.1-1.3-0.1-1.9h0c-0.2,0.6-1,2.1-3.2,2.1
+				c-1.9,0-3.4-1.1-3.4-3.6v-7.9h3.9v6.8c0,1.1,0.3,1.6,1.1,1.6c1.1,0,1.4-1,1.4-1.9v-6.5h3.9V36.3"/>
+			<path class="st0" d="M93,30.2c0-1.6-0.1-2.7-0.1-3.3h3.7c0.1,0.5,0.1,1.3,0.1,1.9h0c0.3-0.9,1-2.1,2.9-2.1c0.3,0,0.4,0,0.6,0.1
+				v3.4C100,30.1,99.5,30,99,30c-1.3,0-2.1,1.1-2.1,2.6v5.6H93V30.2"/>
+			<path class="st0" d="M104.8,33.6c0.1,1.8,1.4,2.4,2.8,2.4c1.1,0,2.3-0.5,3.3-0.9l0.1,2.7c-0.9,0.3-2.4,0.6-3.9,0.6
+				c-4.6,0-5.9-3-5.9-5.9c0-3.1,1.8-5.8,5.2-5.8c3.5,0,5.2,2.8,5.2,5.9v1.1H104.8z M108,31.6v-0.3c0-1.5-0.4-2.2-1.6-2.2
+				c-1.1,0-1.8,1-1.8,2.5H108"/>
+			<path class="st0" d="M113.4,29.2c0-0.8-0.1-1.8-0.1-2.3h3.7c0.1,0.5,0.1,1.3,0.1,1.9h0c0.2-0.6,1-2.1,3.2-2.1
+				c1.9,0,3.4,1.1,3.4,3.6v7.9h-3.9v-6.8c0-1.1-0.3-1.6-1.1-1.6c-1,0-1.4,1-1.4,2.2v6.2h-3.9V29.2"/>
+			<path class="st0" d="M125,26.9h1.9v-2.4l3.9-1.2v3.6h2.2v2.6h-2.2v4.8c0,1,0.6,1.4,1.3,1.4c0.4,0,0.7-0.1,0.9-0.2l0.1,2.6
+				c-0.5,0.1-1.4,0.3-2.6,0.3c-2.1,0-3.6-1.2-3.6-3.3v-5.6H125V26.9"/>
+			<path class="st0" d="M135.1,22h3.9v3.2h-3.9V22z M135.1,26.9h3.9v11.3h-3.9V26.9z"/>
+			<path class="st0" d="M151.1,35.7c0,0.9,0.1,1.8,0.1,2.5h-3.5c0-0.5-0.1-1-0.1-1.6c-1.1,1.3-2,1.8-3.4,1.8c-2,0-3.4-1.4-3.4-3.6
+				c0-2.5,1.9-3.8,5.8-3.8h1v-0.3c0-0.7-0.6-1.5-2.1-1.5c-1.2,0-2.4,0.5-3.2,1.1l-0.1-2.8c0.9-0.3,2.3-0.7,4.2-0.7
+				c4,0,4.7,1.9,4.7,4.2V35.7z M147.7,32.7h-0.5c-1.7,0-2.9,0.5-2.9,1.9c0,1,0.5,1.4,1.3,1.4c1.8,0,2-1.8,2-2.9V32.7"/>
+			<path class="st0" d="M153.3,29.2c0-0.8-0.1-1.8-0.1-2.3h3.7c0.1,0.5,0.1,1.3,0.1,1.9h0c0.2-0.6,1-2.1,3.2-2.1
+				c1.9,0,3.4,1.1,3.4,3.6v7.9h-3.9v-6.8c0-1.1-0.3-1.6-1.1-1.6c-1,0-1.4,1-1.4,2.2v6.2h-3.9V29.2"/>
+			<path class="st0" d="M166.3,23.1h1.3v9.5c0,2.3,0.4,4.5,3.1,4.5c2.8,0,3.1-2.4,3.1-4.5v-9.5h1.3v9.5c0,3-1,5.7-4.5,5.7
+				s-4.5-2.5-4.5-5.7V23.1"/>
+			<path class="st0" d="M178.5,30.6c0-1.1-0.1-2.3-0.1-3.4h1.2c0,0.5,0.1,0.8,0.1,1.6h0c0.3-0.5,1-1.8,2.8-1.8c3,0,3,3,3,3.8v7.4
+				h-1.3v-7.4c0-0.8,0-2.6-2.1-2.6c-1.5,0-2.5,1.4-2.5,3.2v6.8h-1.3V30.6"/>
+			<path class="st0" d="M188.5,22.8h1.5v1.9h-1.5V22.8z M188.6,27.2h1.3v11h-1.3V27.2z"/>
+			<polyline class="st0" points="191.7,27.2 193,27.2 195.6,36.8 195.7,36.8 198.4,27.2 199.6,27.2 196.4,38.2 194.9,38.2 
+				191.7,27.2 			"/>
+			<path class="st0" d="M202.1,33.1c0,4.1,2.6,4.1,3.1,4.1c0.7,0,1.7-0.3,2.4-0.9l0.1,1.4c-0.5,0.3-1.3,0.6-2.6,0.6
+				c-4.3,0-4.3-4.6-4.3-5.7c0-4.1,2.1-5.7,3.9-5.7c3.2,0,3.5,3.4,3.5,6.1H202.1z M206.8,31.9c0-2.9-1.2-3.7-2.2-3.7
+				c-1.7,0-2.5,2.3-2.5,3.7H206.8"/>
+			<path class="st0" d="M210.5,30.6c0-1.1-0.1-2.3-0.1-3.4h1.2c0,0.6,0.1,1.3,0.1,1.8h0c0.8-1.6,1.7-1.9,2.9-1.9v1.3
+				c-2,0-2.9,0.9-2.9,2.9v6.9h-1.3V30.6"/>
+			<path class="st0" d="M221.1,28.6c-0.6-0.2-1.2-0.5-1.9-0.5c-1.3,0-1.9,1-1.9,1.8c0,1,0.4,1.2,1.9,2.1c1.5,0.8,2.7,1.4,2.7,3.2
+				c0,2-1.4,3.2-3.3,3.2c-1.4,0-2.1-0.3-2.8-0.5l0.2-1.4c0.4,0.3,1.5,0.8,2.5,0.8c1.2,0,2-0.9,2-1.9c0-1.1-0.7-1.5-2-2.1
+				c-1.9-0.9-2.6-1.5-2.6-3.1c0-2.1,1.8-3,3.2-3c0.7,0,1.6,0.2,2,0.3L221.1,28.6"/>
+			<path class="st0" d="M224.1,22.8h1.5v1.9h-1.5V22.8z M224.3,27.2h1.3v11h-1.3V27.2z"/>
+			<path class="st0" d="M230.4,24.6v2.6h2.2v1.2h-2.2v7.2c0,0.9,0.2,1.7,1.2,1.7c0.6,0,0.8-0.1,1-0.2v1.3c-0.3,0.1-0.9,0.2-1.4,0.2
+				c-1.6,0-2.1-1.3-2.1-2.5v-7.5h-1.6v-1.2h1.6V25L230.4,24.6"/>
+			<path class="st0" d="M237.7,36.3L237.7,36.3l2.5-9.2h1.3l-3.6,13.1c-0.4,1.5-0.8,2.7-2.5,2.7c-0.3,0-0.5,0-0.8-0.1l0.1-1.3
+				c0.2,0.2,0.6,0.2,0.9,0.2c0.6,0,0.9-0.6,1.1-1.3l0.6-2.1l-3.2-11.3h1.3L237.7,36.3"/>
+		</g>
+		<g>
+			<path class="st0" d="M58.1,4.3h1.3v9.5c0,2.3,0.4,4.5,3.1,4.5c2.8,0,3.1-2.4,3.1-4.5V4.3H67v9.5c0,3-1,5.7-4.5,5.7
+				c-3.5,0-4.5-2.5-4.5-5.7V4.3"/>
+			<path class="st0" d="M70.2,11.8c0-1.1-0.1-2.3-0.1-3.4h1.2c0,0.5,0.1,0.8,0.1,1.6h0c0.3-0.5,1-1.8,2.8-1.8c3,0,3,3,3,3.8v7.4H76
+				V12c0-0.8,0-2.6-2.1-2.6c-1.5,0-2.5,1.4-2.5,3.2v6.8h-1.3V11.8"/>
+			<path class="st0" d="M80.2,4h1.5v1.9h-1.5V4z M80.3,8.4h1.3v11h-1.3V8.4z"/>
+			<polyline class="st0" points="83.4,8.4 84.7,8.4 87.3,18 87.4,18 90.1,8.4 91.3,8.4 88.1,19.4 86.6,19.4 83.4,8.4 			"/>
+			<path class="st0" d="M93.8,14.3c0,4.1,2.6,4.1,3.1,4.1c0.7,0,1.7-0.3,2.4-0.9l0.1,1.4c-0.5,0.3-1.3,0.6-2.6,0.6
+				c-4.3,0-4.3-4.6-4.3-5.7c0-4.1,2.1-5.7,3.9-5.7c3.2,0,3.5,3.4,3.5,6.1H93.8z M98.6,13.1c0-2.9-1.2-3.7-2.2-3.7
+				c-1.7,0-2.5,2.3-2.5,3.7H98.6"/>
+			<path class="st0" d="M102.2,11.8c0-1.1-0.1-2.3-0.1-3.4h1.2c0,0.6,0.1,1.3,0.1,1.8h0c0.8-1.6,1.7-1.9,2.9-1.9v1.3
+				c-2,0-2.9,0.9-2.9,2.9v6.9h-1.3V11.8"/>
+			<path class="st0" d="M112.8,9.8c-0.6-0.2-1.2-0.5-1.9-0.5c-1.3,0-1.9,1-1.9,1.7c0,1,0.4,1.2,1.9,2.1c1.5,0.8,2.7,1.4,2.7,3.2
+				c0,2-1.4,3.2-3.3,3.2c-1.4,0-2.1-0.3-2.8-0.5l0.2-1.4c0.4,0.3,1.5,0.8,2.5,0.8c1.2,0,2-0.9,2-1.9c0-1.1-0.7-1.5-2-2.1
+				c-1.9-0.9-2.6-1.5-2.6-3.1c0-2.1,1.8-3,3.2-3c0.7,0,1.6,0.2,2,0.3L112.8,9.8"/>
+			<path class="st0" d="M115.8,4h1.5v1.9h-1.5V4z M116,8.4h1.3v11H116V8.4z"/>
+			<path class="st0" d="M122.1,5.8v2.6h2.2v1.2h-2.2v7.2c0,0.9,0.2,1.7,1.2,1.7c0.6,0,0.8-0.1,1-0.2v1.3c-0.3,0.1-0.9,0.2-1.4,0.2
+				c-1.6,0-2.1-1.3-2.1-2.5V9.5h-1.6V8.4h1.6V6.2L122.1,5.8"/>
+			<path class="st0" d="M127,14.3c0,4.1,2.6,4.1,3.1,4.1c0.7,0,1.7-0.3,2.4-0.9l0.1,1.4c-0.5,0.3-1.3,0.6-2.6,0.6
+				c-4.3,0-4.3-4.6-4.3-5.7c0-4.1,2.1-5.7,3.9-5.7c3.2,0,3.5,3.4,3.5,6.1H127z M131.8,13.1c0-2.9-1.2-3.7-2.2-3.7
+				c-1.7,0-2.5,2.3-2.5,3.7H131.8z M131.6,3.7l-2.1,3.1h-1.1l1.6-3.1H131.6"/>
+			<polyline class="st0" points="135.4,4.3 139.4,4.3 139.4,16.3 144.4,16.3 144.4,19.4 135.4,19.4 135.4,4.3 			"/>
+			<path class="st0" d="M155.7,16.9c0,0.9,0.1,1.8,0.1,2.5h-3.5c0-0.5-0.1-1-0.1-1.6c-1.1,1.3-2,1.8-3.4,1.8c-2,0-3.4-1.4-3.4-3.6
+				c0-2.5,1.9-3.8,5.8-3.8h1v-0.3c0-0.7-0.6-1.5-2.1-1.5c-1.2,0-2.4,0.5-3.2,1.1l-0.1-2.8c0.9-0.3,2.3-0.7,4.2-0.7
+				c4,0,4.7,1.9,4.7,4.2V16.9z M152.3,13.9h-0.5c-1.7,0-2.9,0.5-2.9,1.9c0,1,0.5,1.4,1.3,1.4c1.8,0,2-1.8,2-2.9V13.9"/>
+			<path class="st0" d="M168.1,17.5c0,0.8,0.1,1.6,0.1,1.9h-3.7c-0.1-0.5-0.1-1.3-0.1-1.9h0c-0.2,0.6-1,2.1-3.2,2.1
+				c-1.9,0-3.4-1.1-3.4-3.6V8.1h3.9v6.8c0,1.1,0.3,1.6,1.1,1.6c1.1,0,1.4-1,1.4-1.9V8.1h3.9V17.5"/>
+			<path class="st0" d="M170.3,11.4c0-1.6-0.1-2.7-0.1-3.3h3.7c0.1,0.5,0.1,1.3,0.1,1.9h0c0.3-0.9,1-2.1,2.9-2.1
+				c0.3,0,0.4,0,0.6,0.1v3.4c-0.2-0.1-0.7-0.1-1.2-0.1c-1.3,0-2.1,1.1-2.1,2.6v5.6h-3.9V11.4"/>
+			<path class="st0" d="M182.1,14.8c0.1,1.8,1.4,2.4,2.8,2.4c1.1,0,2.3-0.5,3.3-0.9l0.1,2.7c-0.9,0.3-2.4,0.6-3.9,0.6
+				c-4.6,0-5.9-3-5.9-5.9c0-3.1,1.8-5.8,5.2-5.8c3.5,0,5.2,2.8,5.2,5.9v1.1H182.1z M185.3,12.8v-0.3c0-1.5-0.4-2.2-1.6-2.2
+				c-1.1,0-1.8,1-1.8,2.6H185.3"/>
+			<path class="st0" d="M190.7,10.4c0-0.8-0.1-1.8-0.1-2.3h3.7c0.1,0.5,0.1,1.3,0.1,1.9h0c0.2-0.6,1-2.1,3.2-2.1
+				c1.9,0,3.4,1.1,3.4,3.6v7.9h-3.9v-6.8c0-1.1-0.3-1.6-1.1-1.6c-1,0-1.4,1-1.4,2.2v6.2h-3.9V10.4"/>
+			<path class="st0" d="M202.3,8.1h1.9V5.8l3.9-1.2v3.6h2.2v2.6h-2.2v4.8c0,1,0.6,1.4,1.3,1.4c0.4,0,0.7-0.1,0.9-0.2l0.1,2.6
+				c-0.5,0.1-1.4,0.3-2.6,0.3c-2.1,0-3.6-1.2-3.6-3.3v-5.6h-1.9V8.1"/>
+			<path class="st0" d="M212.4,3.2h3.9v3.2h-3.9V3.2z M212.4,8.1h3.9v11.3h-3.9V8.1z"/>
+			<path class="st0" d="M221.9,14.8c0.1,1.8,1.4,2.4,2.8,2.4c1.1,0,2.3-0.5,3.3-0.9l0.1,2.7c-0.9,0.3-2.4,0.6-3.9,0.6
+				c-4.6,0-5.9-3-5.9-5.9c0-3.1,1.8-5.8,5.2-5.8c3.5,0,5.2,2.8,5.2,5.9v1.1H221.9z M225.2,12.8v-0.3c0-1.5-0.4-2.2-1.6-2.2
+				c-1.1,0-1.8,1-1.8,2.6H225.2"/>
+			<path class="st0" d="M230.6,10.4c0-0.8-0.1-1.8-0.1-2.3h3.7c0.1,0.5,0.1,1.3,0.1,1.9h0c0.2-0.6,1-2.1,3.2-2.1
+				c1.9,0,3.4,1.1,3.4,3.6v7.9H237v-6.8c0-1.1-0.3-1.6-1.1-1.6c-1,0-1.4,1-1.4,2.2v6.2h-3.9V10.4"/>
+			<path class="st0" d="M243,10.4c0-0.8-0.1-1.8-0.1-2.3h3.7c0.1,0.5,0.1,1.3,0.1,1.9h0c0.2-0.6,1-2.1,3.2-2.1
+				c1.9,0,3.4,1.1,3.4,3.6v7.9h-3.9v-6.8c0-1.1-0.3-1.6-1.1-1.6c-1,0-1.4,1-1.4,2.2v6.2H243V10.4"/>
+			<path class="st0" d="M258.8,14.8c0.1,1.8,1.4,2.4,2.8,2.4c1.1,0,2.3-0.5,3.3-0.9l0.1,2.7c-0.9,0.3-2.4,0.6-3.9,0.6
+				c-4.6,0-5.9-3-5.9-5.9c0-3.1,1.8-5.8,5.2-5.8c3.5,0,5.2,2.8,5.2,5.9v1.1H258.8z M262,12.8v-0.3c0-1.5-0.4-2.2-1.6-2.2
+				c-1.1,0-1.7,1-1.7,2.6H262"/>
+		</g>
+	</g>
+	<g>
+		<path class="st0" d="M43.3,2.9c-7-1.4-13.6-2-20-2c-6.4,0-13,0.7-20,2L2.1,3.1v12.2c0,4.3,0.7,15.1,7,23.8l1.2,1.5
+			c3.3,3.9,7.5,6.7,12.5,8.3l0.4,0.1l0.4-0.1c5-1.6,9.2-4.4,12.5-8.3l1.2-1.5c6.3-8.6,7-19.5,7-23.8V3.1L43.3,2.9z M23.3,47.6
+			c-5.4-1.7-9.3-4.7-12.1-8.1c2.6-3.9,7.1-6.5,12.1-6.5c5,0,9.5,2.6,12.1,6.5C32.5,43,28.6,45.9,23.3,47.6z M43,15.4
+			c0,3.4-0.5,14.4-6.7,22.9c-2.7-3.7-6.9-6.3-11.7-6.6c0.6-1.4,1.2-2.8,1.7-4.2c0.7-0.6,0.6-1.7,1.9-2.4c2.2-1.1,6.4-2.2,9.4-2.3
+			c-3-1-6.8-1.1-9.7-0.5c0.2-0.7,0.4-1.3,0.5-2c1.8-0.5,3.7-0.8,5.3-0.8c-1.1-0.4-2.4-0.6-3.6-0.7c0.3-0.5,0.5-1.3,1.4-1.7
+			c1.9-0.9,5.5-1.9,8.1-1.9c-3.2-1-7.4-0.9-10,0c0-0.2,0-0.3,0.1-0.5c1.9-0.6,4.2-1,5.9-1.1c-1.8-0.6-3.8-0.8-5.7-0.7
+			c0.2-2,0.2-3.5-0.1-4.3l-0.6,0.2c0,1.4-0.1,2.8-0.3,4.2c-2.5,0.2-4.6,0.8-5.5,1.8c-1,1.1-1,3,1.1,3.2c2.1,0.2,1.3-1.5,2.9-2.4
+			c0.3-0.2,0.7-0.3,1.1-0.5c0,0.2-0.1,0.4-0.1,0.6c-0.4,0.2-0.8,0.4-1,0.7C26.7,17,26.5,18,27,18.7c-3.3,0.1-6.3,0.9-7.5,2.1
+			c-1.2,1.3-1.1,3.5,1.3,3.7c2.4,0.2,1.5-1.8,3.4-2.7c0.7-0.4,1.7-0.7,2.8-1.1c-0.2,0.7-0.4,1.3-0.7,1.9c-1.3,0.4-2.3,0.9-2.9,1.5
+			c-1.1,1.2-1.1,3.2,0.8,3.6c-0.6,1.4-1.3,2.7-1.9,3.9c-5,0.3-9.4,2.9-12.1,6.7C4,29.8,3.5,18.7,3.5,15.4V4.3c6.3-1.2,12.9-2,19.7-2
+			c6.8,0,13.4,0.8,19.7,2V15.4z"/>
+		<path class="st0" d="M28.8,8.1c-1.5,0.7-0.8,2.3-2.7,2.1c-1.9-0.2-1.9-1.9-1-2.9c1.5-1.6,7.1-2.3,11.1-1
+			C33.8,6.4,30.5,7.2,28.8,8.1"/>
+	</g>
+</g>
+</svg>
+''';
+
+Future<Null> sendAnalyticsEvent(String event, String desc) async {
+  await analytics.logEvent(
+    name: event,
+    parameters: <String, dynamic>{
+      'string': desc,
+    },
+  );
+}
 
 
 Widget getScreen(String settings) {
@@ -30,21 +279,108 @@ Widget getScreen(String settings) {
     case '/info':
       return infoScreen;
     default:
-      var split = settings.split("/");
-      print(split);
-      if(split[1] == "schedule") {
-        int cardID = int.parse(split[2]);
-        return EventView(id: cardID);
-      }
       return scheduleScreen;
       
   }
+}
+
+Widget getDrawer(context) {
+  return new Drawer(
+    child: ListView(
+      
+      padding: EdgeInsets.zero,
+      children: <Widget>[
+        DrawerHeader(
+          // child: Text((english.value ? "Laurentian University" : "Université Laurentienne"), style: TextStyle(fontSize: 35.0, fontWeight: FontWeight.bold, color: Colors.white),),
+          child: SvgPicture.string(english.value ? svgEnglish : svgFrench, color: Colors.white,),
+          // child: SvgPicture.network((english.value ? "https://laurentian.ca/sites/all/themes/newLul/assets/images/laurentian.svg" : "https://laurentienne.ca/sites/all/themes/newLul/assets/images/laurentienne.svg"), color: Colors.white,),
+          decoration: BoxDecoration(
+            color: CompanyColors.blue
+          ),
+        ),
+        ListTile(
+          leading: Icon(Icons.event),
+          title: Text((english.value ? "Schedule" : "Programme")),
+          onTap: () {
+            Navigator.of(context).pushNamedAndRemoveUntil("/schedule", (route) => false);
+          },
+        ),
+        ListTile(
+          leading: Icon(Icons.star),
+          title: Text((english.value ? "Important Dates" : "Dates Importantes")),
+          onTap: () {
+            Navigator.of(context).pushNamedAndRemoveUntil("/important", (route) => false);
+          },
+        ),
+        ListTile(
+          leading: Icon(Icons.notifications_active),
+          title: Text((english.value ? "Announcements" : "Annonces")),
+          onTap: () {
+            Navigator.of(context).pushNamedAndRemoveUntil("/announcements", (route) => false);
+          },
+        ),
+        ListTile(
+          leading: Icon(Icons.info),
+          title: Text((english.value ? "Information" : "Information")),
+          onTap: () {
+            Navigator.of(context).pushNamedAndRemoveUntil("/info", (route) => false);
+          },
+        ),
+      ],
+    ),
+  );
 }
 
 bool getLang() {
   return english.value;
 }
 
+Widget debugNav(String setting, BuildContext context) {
+  if(!debugVal.value) {
+    return new Scaffold(
+      body: getScreen(setting),
+      bottomNavigationBar: new Theme(
+        data: Theme.of(context).copyWith(
+            // sets the background color of the `BottomNavigationBar`
+            canvasColor: CompanyColors.blue,
+            // sets the active color of the `BottomNavigationBar` if `Brightness` is light
+            primaryColor: CompanyColors.yellow,
+            textTheme: Theme
+                .of(context)
+                .textTheme
+                .copyWith(caption: new TextStyle(color: Colors.white))), // sets the inactive color of the `BottomNavigationBar`
+        child: new BottomNavigationBar(
+          type: BottomNavigationBarType.fixed,
+          currentIndex: _currentIndex,
+          onTap: (value) {
+            final routes = ["/important", "/announcements", "/schedule", "/info"];
+            _currentIndex = value;
+            Navigator.of(context).pushNamedAndRemoveUntil(
+                routes[value], (route) => false);
+          },
+          items: [
+            new BottomNavigationBarItem(
+              backgroundColor: CompanyColors.blue,
+                icon: new Icon(Icons.star), title: new Container(height: 0.0,)),
+            new BottomNavigationBarItem(
+              backgroundColor: CompanyColors.blue,
+                icon: new Icon(Icons.notifications_active), title: new Container(height: 0.0,)),
+            new BottomNavigationBarItem(
+              backgroundColor: CompanyColors.blue,
+                icon: new Icon(Icons.event), title: new Container(height: 0.0,)),
+            new BottomNavigationBarItem(
+              backgroundColor: CompanyColors.blue,
+                icon: new Icon(Icons.info), title: new Container(height: 0.0,)),
+          ],
+        ),
+      ),
+    );
+  } else {
+    return new Scaffold(
+      body: getScreen(setting),
+    );
+  }
+}
 
 Route<Null> getRoute(RouteSettings settings) {
 
@@ -54,116 +390,9 @@ Route<Null> getRoute(RouteSettings settings) {
       name: "/schedule",
       isInitialRoute: true);
 
-  return new MaterialPageRoute<Null>(
-      settings: initialSettings,
-      builder: (context) =>
-      new Scaffold(
-        body: getScreen(settings.name),
-        // bottomNavigationBar: new BottomNavigationBar(
-        //     currentIndex: _currentIndex,
-        //     type: BottomNavigationBarType.shifting,
-        //     onTap: (value) {
-        //       final routes = ["/important", "/announcements", "/schedule", "/info"];
-        //       _currentIndex = value;
-        //       Navigator.of(context).pushNamedAndRemoveUntil(
-        //           routes[value], (route) => false);
-        //     },
-        //     items: [
-        //       new BottomNavigationBarItem(
-        //         backgroundColor: CompanyColors.blue,
-        //           icon: new Icon(Icons.priority_high), title: new Text("")),
-        //       new BottomNavigationBarItem(
-        //         backgroundColor: CompanyColors.blue,
-        //           icon: new Icon(Icons.notifications_active), title: new Text("")),
-        //       new BottomNavigationBarItem(
-        //         backgroundColor: CompanyColors.blue,
-        //           icon: new Icon(Icons.event), title: new Text("")),
-        //       new BottomNavigationBarItem(
-        //         backgroundColor: CompanyColors.blue,
-        //           icon: new Icon(Icons.info_outline), title: new Text("")),
-        //     ],
-            
-        //     ),
-            bottomNavigationBar: new Theme(
-              data: Theme.of(context).copyWith(
-                  // sets the background color of the `BottomNavigationBar`
-                  canvasColor: CompanyColors.blue,
-                  // sets the active color of the `BottomNavigationBar` if `Brightness` is light
-                  primaryColor: CompanyColors.yellow,
-                  textTheme: Theme
-                      .of(context)
-                      .textTheme
-                      .copyWith(caption: new TextStyle(color: Colors.white))), // sets the inactive color of the `BottomNavigationBar`
-              child: new BottomNavigationBar(
-                type: BottomNavigationBarType.fixed,
-                currentIndex: _currentIndex,
-                onTap: (value) {
-                  final routes = ["/important", "/announcements", "/schedule", "/info"];
-                  _currentIndex = value;
-                  Navigator.of(context).pushNamedAndRemoveUntil(
-                      routes[value], (route) => false);
-                },
-                items: [
-                  new BottomNavigationBarItem(
-                    backgroundColor: CompanyColors.blue,
-                      icon: new Icon(Icons.star), title: new Container(height: 0.0,)),
-                  new BottomNavigationBarItem(
-                    backgroundColor: CompanyColors.blue,
-                      icon: new Icon(Icons.notifications_active), title: new Container(height: 0.0,)),
-                  new BottomNavigationBarItem(
-                    backgroundColor: CompanyColors.blue,
-                      icon: new Icon(Icons.event), title: new Container(height: 0.0,)),
-                  new BottomNavigationBarItem(
-                    backgroundColor: CompanyColors.blue,
-                      icon: new Icon(Icons.info), title: new Container(height: 0.0,)),
-                ],
-              ),
-            ),
-        // drawer: Drawer(
-        //   child: ListView(
-        //     padding: EdgeInsets.zero,
-        //     children: <Widget>[
-        //       DrawerHeader(
-        //         child: Text('Laurentian University', style: new TextStyle(color: Colors.white, fontSize: 25.0),),
-        //         decoration: BoxDecoration(
-        //           color: CompanyColors.blue,
-        //         ),
-        //       ),
-        //       ListTile(
-        //         title: Text((english.value ? 'Schedule' : 'Programme')),
-        //         leading: Icon(Icons.event),
-        //         onTap: () {
-        //           Navigator.of(context).pushNamedAndRemoveUntil(
-        //           "/schedule", (route) => false);
-        //         },
-        //       ),
-        //       ListTile(
-        //         title: Text((english.value ? 'Important Dates' : 'Dates Importantes')),
-        //         leading: Icon(Icons.priority_high),
-        //         onTap: () {
-        //           Navigator.of(context).pushNamedAndRemoveUntil(
-        //           "/important", (route) => false);
-        //         },
-        //       ),
-        //       ListTile(
-        //         title: Text((english.value ? 'Announcements' : 'Annonces')),
-        //         leading: Icon(Icons.notifications_active),
-        //         onTap: () {
-        //           Navigator.of(context).pushNamedAndRemoveUntil(
-        //           "/announcements", (route) => false);
-        //         },
-        //       ),
-        //       ListTile(
-        //         title: Text((english.value ? 'Information' : 'Informations')),
-        //         leading: Icon(Icons.info_outline),
-        //         onTap: () {
-        //           Navigator.of(context).pushNamedAndRemoveUntil(
-        //           "/info", (route) => false);
-        //         },
-        //       ),
-        //     ],
-        //   ),
-        // ),
-      )
-    );
-  }
+  MaterialPageRoute<Null> route = new MaterialPageRoute<Null>(
+    settings: initialSettings,
+    builder: (context) => debugNav(settings.name, context)
+  );
+  return route;
+}
