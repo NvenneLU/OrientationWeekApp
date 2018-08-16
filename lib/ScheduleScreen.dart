@@ -267,9 +267,9 @@ class _ScheduleState extends State<ScheduleScreen> {
                                   info.add(_ScheduleDivider(tempDate));
                                   _dates.add(DateTime(tempDate.year, tempDate.month, tempDate.day));
                                 }
-                                info.add(ScheduleCard(event: v['name'], desc: v['desc'], attendee: v['attendee'], location: v['location'], endDate: v['endTime'], startDate: v['startTime'], id: v.documentID,));
+                                info.add(ScheduleCard(event: v['name'], desc: v['desc'], attendee: v['attendee'], location: v['location'], endDate: v['endTime'], startDate: v['startTime'], id: v.documentID,lang: widget.lang.value,));
                               } else if (_filter.day == v['startTime'].day && _filter.month == v['startTime'].month) {
-                                info.add(ScheduleCard(event: v['name'], desc: v['desc'], attendee: v['attendee'], location: v['location'], endDate: v['endTime'], startDate: v['startTime'], id: v.documentID,));
+                                info.add(ScheduleCard(event: v['name'], desc: v['desc'], attendee: v['attendee'], location: v['location'], endDate: v['endTime'], startDate: v['startTime'], id: v.documentID,lang: widget.lang.value,));
                               }
                             });
 
@@ -380,9 +380,9 @@ class _ScheduleState extends State<ScheduleScreen> {
                                   info.add(_ScheduleDivider(tempDate));
                                   _dates.add(DateTime(tempDate.year, tempDate.month, tempDate.day));
                                 }
-                                info.add(ScheduleCard(event: v['name'], desc: v['desc'], attendee: v['attendee'], location: v['location'], endDate: v['endTime'], startDate: v['startTime'], id: v.documentID,));
+                                info.add(ScheduleCard(event: v['name'], desc: v['desc'], attendee: v['attendee'], location: v['location'], endDate: v['endTime'], startDate: v['startTime'], id: v.documentID, lang: widget.lang.value,));
                               } else if (_filter.day == v['startTime'].day && _filter.month == v['startTime'].month) {
-                                info.add(ScheduleCard(event: v['name'], desc: v['desc'], attendee: v['attendee'], location: v['location'], endDate: v['endTime'], startDate: v['startTime'], id: v.documentID,));
+                                info.add(ScheduleCard(event: v['name'], desc: v['desc'], attendee: v['attendee'], location: v['location'], endDate: v['endTime'], startDate: v['startTime'], id: v.documentID, lang: widget.lang.value,));
                               }
                             });
 
@@ -412,9 +412,9 @@ class ScheduleCard extends StatefulWidget {
   final String desc;
   final String attendee;
   final String id;
-  
+  final bool lang;
 
-  ScheduleCard({this.event, this.desc, this.location, this.startDate, this.endDate, this.attendee, this.id});
+  ScheduleCard({this.event, this.desc, this.location, this.startDate, this.endDate, this.attendee, this.id, this.lang});
 
   @override
   _ScheduleCardState createState() => new _ScheduleCardState();
@@ -448,131 +448,135 @@ class _ScheduleCardState extends State<ScheduleCard> {
                 return Scaffold(
                   appBar: AppBar(
                     leading: Icon(Icons.event),
-                    title: Text("View Event"),
+                    title: Text(widget.lang ? "View Event" : "Événement"),
                     centerTitle: false,
                   ),
-                  body: GestureDetector(
-                    onHorizontalDragEnd: (DragEndDetails e) {
-                      if(e.velocity.pixelsPerSecond.dx > 1000) {
-                        Navigator.of(context).pop();
-                      }
-                    },
-                    child: new Card(
-                      margin: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 25.0),
-                      child: new Container(
-                        padding: EdgeInsets.fromLTRB(14.0, 8.0, 14.0, 8.0),
-                        child: new Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            new Padding(
-                              padding: EdgeInsets.fromLTRB(0.0, 4.0, 0.0, 4.0),
-                              child: new Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  new Expanded(
-                                    child: new Text(widget.event,
-                                      overflow: TextOverflow.fade,
-                                      style: AppTextStyle.h6,
-                                    ),
+                  body: ListView(
+                    children: <Widget>[
+                      GestureDetector(
+                        onHorizontalDragEnd: (DragEndDetails e) {
+                          if(e.velocity.pixelsPerSecond.dx > 1000) {
+                            Navigator.of(context).pop();
+                          }
+                        },
+                        child: new Card(
+                          margin: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 25.0),
+                          child: new Container(
+                            padding: EdgeInsets.fromLTRB(14.0, 8.0, 14.0, 8.0),
+                            child: new Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                new Padding(
+                                  padding: EdgeInsets.fromLTRB(0.0, 4.0, 0.0, 4.0),
+                                  child: new Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: <Widget>[
+                                      new Expanded(
+                                        child: new Text(widget.event,
+                                          overflow: TextOverflow.fade,
+                                          style: AppTextStyle.h6,
+                                        ),
+                                      ),
+                                      new Text(TimeFormat.toMonthDay(widget.startDate),
+                                        style: AppTextStyle.ovlnMedEmp,
+                                      )
+                                    ],
                                   ),
-                                  new Text(TimeFormat.toMonthDay(widget.startDate),
-                                    style: AppTextStyle.ovlnMedEmp,
-                                  )
-                                ],
-                              ),
-                            ),
-                            new Padding(
-                              padding: EdgeInsets.fromLTRB(0.0, 4.0, 0.0, 4.0),
-                              child: new Row(
-                                children: <Widget>[
-                                  new Icon(Icons.location_on, color: Colors.grey[600],),
-                                  new Expanded(
-                                    child: new Padding(
-                                      padding: EdgeInsets.only(left: 5.0),
-                                      child: new Text(widget.location,
-                                        style: AppTextStyle.subMedEmp,
-                                        overflow: TextOverflow.fade,
-                                      ),
-                                    )
-                                  )
-                                ],
-                              ),
-                            ),
-                            new Padding(
-                              padding: EdgeInsets.fromLTRB(0.0, 4.0, 0.0, 6.0),
-                              child: new Row(
-                                children: <Widget>[
-                                  new Icon(Icons.access_time, color: Colors.grey[600],),
-                                  new Expanded(
-                                    child: new Padding(
-                                      padding: EdgeInsets.only(left: 5.0),
-                                      child: new Text(TimeFormat.toWeekdayTime(widget.startDate, widget.endDate),
-                                        style: AppTextStyle.subMedEmp,
-                                        overflow: TextOverflow.fade,
-                                      ),
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                            new Padding(
-                              padding: EdgeInsets.fromLTRB(0.0, 4.0, 0.0, 6.0),
-                              child: new Row(
-                                children: <Widget>[
-                                  new Icon(Icons.people, color: Colors.grey[600],),
-                                  new Expanded(
-                                    child: new Padding(
-                                      padding: EdgeInsets.only(left: 5.0),
-                                      child: new Text(widget.attendee,
-                                        overflow: TextOverflow.clip,
-                                        style: AppTextStyle.subMedEmp,
-                                      ),
-                                    )
-                                  )
-                                ],
-                              ),
-                            ),
-                            new Padding(
-                              padding: EdgeInsets.fromLTRB(4.0, 4.0, 4.0, 14.0),
-                              child: new Text(widget.desc,
-                                style: AppTextStyle.bodyMedEmp,
-                              ),
-                            ),
-                            new ButtonTheme.bar(
-                              textTheme: ButtonTextTheme.primary,
-                              child: ButtonBar(
-                                alignment: MainAxisAlignment.start,
-                                children: <Widget>[
-                                  new OutlineButton( 
-                                    child: new Text("BACK", style: TextStyle(color: CompanyColors.blue),),
-                                    onPressed: () {Navigator.of(context).pop();},
+                                ),
+                                new Padding(
+                                  padding: EdgeInsets.fromLTRB(0.0, 4.0, 0.0, 4.0),
+                                  child: new Row(
+                                    children: <Widget>[
+                                      new Icon(Icons.location_on, color: Colors.grey[600],),
+                                      new Expanded(
+                                        child: new Padding(
+                                          padding: EdgeInsets.only(left: 5.0),
+                                          child: new Text(widget.location,
+                                            style: AppTextStyle.subMedEmp,
+                                            overflow: TextOverflow.fade,
+                                          ),
+                                        )
+                                      )
+                                    ],
                                   ),
-                                  new OutlineButton( 
-                                    child: new Text("ADD TO CALENDAR", style: TextStyle(color: CompanyColors.blue),),
-                                    onPressed: () async {
-                                      print(widget.startDate.timeZoneName);
-                                      final eventToCreate = new Event(_selectedCalendar.id);
-                                      eventToCreate.title = widget.event;
-                                      eventToCreate.start = widget.startDate;
-                                      eventToCreate.end = widget.endDate;
-                                      eventToCreate.location = widget.location;
-                                      eventToCreate.description = widget.desc;
-                                      final createEventResult = await _deviceCalendarPlugin
-                                          .createOrUpdateEvent(eventToCreate);
-                                      if (createEventResult.isSuccess &&
-                                          (createEventResult.data?.isNotEmpty ?? false)) {
-                                        Scaffold.of(scaffoldContext).showSnackBar(new SnackBar(content: Text("Event Added To Calendar"),));
-                                      }
-                                  }, 
-                                  )
-                                ],
-                              ),
-                            )
-                          ],
+                                ),
+                                new Padding(
+                                  padding: EdgeInsets.fromLTRB(0.0, 4.0, 0.0, 6.0),
+                                  child: new Row(
+                                    children: <Widget>[
+                                      new Icon(Icons.access_time, color: Colors.grey[600],),
+                                      new Expanded(
+                                        child: new Padding(
+                                          padding: EdgeInsets.only(left: 5.0),
+                                          child: new Text(TimeFormat.toWeekdayTime(widget.startDate, widget.endDate),
+                                            style: AppTextStyle.subMedEmp,
+                                            overflow: TextOverflow.fade,
+                                          ),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                                new Padding(
+                                  padding: EdgeInsets.fromLTRB(0.0, 4.0, 0.0, 6.0),
+                                  child: new Row(
+                                    children: <Widget>[
+                                      new Icon(Icons.people, color: Colors.grey[600],),
+                                      new Expanded(
+                                        child: new Padding(
+                                          padding: EdgeInsets.only(left: 5.0),
+                                          child: new Text(widget.attendee,
+                                            overflow: TextOverflow.clip,
+                                            style: AppTextStyle.subMedEmp,
+                                          ),
+                                        )
+                                      )
+                                    ],
+                                  ),
+                                ),
+                                new Padding(
+                                  padding: EdgeInsets.fromLTRB(4.0, 4.0, 4.0, 14.0),
+                                  child: new Text(widget.desc,
+                                    style: AppTextStyle.bodyMedEmp,
+                                  ),
+                                ),
+                                new ButtonTheme.bar(
+                                  textTheme: ButtonTextTheme.primary,
+                                  child: ButtonBar(
+                                    alignment: MainAxisAlignment.start,
+                                    children: <Widget>[
+                                      new OutlineButton( 
+                                        child: new Text((widget.lang ? "BACK" : "RETOUR"), style: TextStyle(color: CompanyColors.blue),),
+                                        onPressed: () {Navigator.of(context).pop();},
+                                      ),
+                                      new OutlineButton( 
+                                        child: new Text((widget.lang ? "ADD TO CALENDAR" : "AJOUTER AU CALENDRIER"), style: TextStyle(color: CompanyColors.blue),),
+                                        onPressed: () async {
+                                          print(widget.startDate.timeZoneName);
+                                          final eventToCreate = new Event(_selectedCalendar.id);
+                                          eventToCreate.title = widget.event;
+                                          eventToCreate.start = widget.startDate;
+                                          eventToCreate.end = widget.endDate;
+                                          eventToCreate.location = widget.location;
+                                          eventToCreate.description = widget.desc;
+                                          final createEventResult = await _deviceCalendarPlugin
+                                              .createOrUpdateEvent(eventToCreate);
+                                          if (createEventResult.isSuccess &&
+                                              (createEventResult.data?.isNotEmpty ?? false)) {
+                                            Scaffold.of(scaffoldContext).showSnackBar(new SnackBar(content: Text("Event Added To Calendar"),));
+                                          }
+                                      }, 
+                                      )
+                                    ],
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
+                    ],
+                  )
                 );
               },
               transitionsBuilder: (_, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {

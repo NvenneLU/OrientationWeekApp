@@ -31,11 +31,6 @@ class _MyApp extends State<MyApp> {
       super.initState();
       analytics  = new FirebaseAnalytics();
       observer = new FirebaseAnalyticsObserver(analytics: analytics);
-      debugVal.addListener(() {
-        setState(() {
-                  print("Swap");
-                });
-      });
     }
 
   
