@@ -141,8 +141,8 @@ class _ScheduleState extends State<ScheduleScreen> {
     final DateTime picked = await showDatePicker(
       context: context,
       initialDate: _date,
-      firstDate: new DateTime(2017),
-      lastDate: new DateTime(2019),
+      firstDate: new DateTime(2018),
+      lastDate: new DateTime(2020),
       selectableDayPredicate: _selectableDay,
       locale: (widget.lang.value ? Locale('en', 'US') : Locale('fr', 'CA')),
       
@@ -175,16 +175,16 @@ class _ScheduleState extends State<ScheduleScreen> {
           title: Text((widget.lang.value ? 'Schedule' : 'Programme')),
           centerTitle: false,
           actions: <Widget>[
-            new IconButton(
-              icon: Icon(Icons.swap_calls),
-              onPressed: () {
-                if(debugVal.value){
-                  debugVal.value = false;
-                } else {
-                  debugVal.value = true;
-                }
-              },
-            ),
+            // new IconButton(
+            //   icon: Icon(Icons.swap_calls),
+            //   onPressed: () {
+            //     if(debugVal.value){
+            //       debugVal.value = false;
+            //     } else {
+            //       debugVal.value = true;
+            //     }
+            //   },
+            // ),
             new IconButton(
               icon: new Icon(Icons.language),
               tooltip: 'Language',

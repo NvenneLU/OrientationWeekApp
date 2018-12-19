@@ -40,7 +40,14 @@ class InfoScreenState extends State<InfoScreen> {
     });
     
   }
-
+  
+  _launchURL(String msg) async {
+  if (await canLaunch(msg)) {
+    await launch(msg);
+  } else {
+    throw 'Could not launch $msg';
+  }
+}
 
 
   Widget getCustomWidget(String key, dynamic v, BuildContext context) {
@@ -85,25 +92,25 @@ class InfoScreenState extends State<InfoScreen> {
               var two = v[i].toString().split("tel://")[1].substring(3,6);
               var three = v[i].toString().split("tel://")[1].substring(6,10);
               var ext = v[i].toString().split("tel://")[1].substring(11,15);
-              temp.add(new FlatButton(child: Text(one + "-" + two + "-" + three + " ext: " + ext),padding: EdgeInsets.zero, onPressed: () => launch(v[i]),));
+              temp.add(new FlatButton(child: Text(one + "-" + two + "-" + three + " ext: " + ext),padding: EdgeInsets.zero, onPressed: () => _launchURL(v[i]),));
             } else {
               if(v[i].toString().split("tel://")[1].length == 10) {
                 var one = v[i].toString().split("tel://")[1].substring(0,3);
                 var two = v[i].toString().split("tel://")[1].substring(3,6);
                 var three = v[i].toString().split("tel://")[1].substring(6,10);
-                temp.add(new FlatButton(child: Text(one + "-" + two + "-" + three),padding: EdgeInsets.zero, onPressed: () => launch(v[i]),));
+                temp.add(new FlatButton(child: Text(one + "-" + two + "-" + three),padding: EdgeInsets.zero, onPressed: () => _launchURL(v[i]),));
               } else {
                 var start = v[i].toString().split("tel://")[1].substring(0,1);
                 var one = v[i].toString().split("tel://")[1].substring(1,4);
                 var two = v[i].toString().split("tel://")[1].substring(4,7);
                 var three = v[i].toString().split("tel://")[1].substring(7,11);
-                temp.add(new FlatButton(child: Text(start + "-" + one + "-" + two + "-" + three),padding: EdgeInsets.zero, onPressed: () => launch(v[i]),));
+                temp.add(new FlatButton(child: Text(start + "-" + one + "-" + two + "-" + three),padding: EdgeInsets.zero, onPressed: () => _launchURL(v[i]),));
               }
             }
           } else if (v[i].toString().contains("mailto:")){
-            temp.add(new FlatButton(child: Text(v[i].toString().split("mailto:")[1]),padding: EdgeInsets.zero, onPressed: () => launch(v[i]),));
+            temp.add(new FlatButton(child: Text(v[i].toString().split("mailto:")[1]),padding: EdgeInsets.zero, onPressed: () => _launchURL(v[i]),));
           } else if (v[i].toString().contains("http://") || v[i].toString().contains("https://")) {
-            temp.add(new FlatButton(child: Text(v[i].toString().split("display:")[1]),padding: EdgeInsets.zero, onPressed: () => launch(v[i].split("display:")[0]),));
+            temp.add(new FlatButton(child: Text(v[i].toString().split("display:")[1]),padding: EdgeInsets.zero, onPressed: () => _launchURL(v[i].split("display:")[0]),));
           } else {
             temp.add(new Text(v[i], style: AppTextStyle.body2MedEmp,));
           }
@@ -277,16 +284,16 @@ class InfoScreenState extends State<InfoScreen> {
             title: Text('Info'),
             centerTitle: false,
             actions: <Widget>[
-              new IconButton(
-              icon: Icon(Icons.swap_calls),
-              onPressed: () {
-                if(debugVal.value){
-                  debugVal.value = false;
-                } else {
-                  debugVal.value = true;
-                }
-              },
-            ),
+            //   new IconButton(
+            //   icon: Icon(Icons.swap_calls),
+            //   onPressed: () {
+            //     if(debugVal.value){
+            //       debugVal.value = false;
+            //     } else {
+            //       debugVal.value = true;
+            //     }
+            //   },
+            // ),
               new IconButton(
                 icon: const Icon(Icons.language),
                 tooltip: 'Language',
@@ -312,6 +319,40 @@ class InfoScreenState extends State<InfoScreen> {
                   if (!snapshot.hasData) return new Center(child: CircularProgressIndicator());
                     List<Widget> info = new List<Widget>();
                     info.add(new Container(margin: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 0.0), child: Text(widget.lang.value ? "Campus Safety" : "Sécurité sur le campus", style: AppTextStyle.h5,)));
+                    info.add(new Container(margin: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 0.0), 
+                      child: 
+                        new Material(
+                          elevation: 6.0,
+                          color: Colors.red[900],
+                          shadowColor: Colors.red[900],
+                          borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                          child: new InkWell(
+                            borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                            onTap: () {_launchURL("tel:+1 705 673 6562");},
+                            splashColor: Colors.red[700],
+                            child: Padding(
+                              padding: const EdgeInsets.all(5.0),
+                              child: new Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  new Row(
+                                    children: <Widget>[
+                                      new Icon(Icons.call, color: Colors.white, size: 35.0,),
+                                      new Text(widget.lang.value ? "Campus Security" : "Sécurité sur le campus", style: new TextStyle(color: Colors.white, fontSize: 25.0))
+                                    ],
+                                  ),
+                                  new Padding(
+                                    padding: EdgeInsets.symmetric(horizontal: 8.0),
+                                    child: new Text("705-673-6562", style: new TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 30.0)),
+                                  )
+                                ],
+                              ),
+                            ),
+                          )
+                        )
+                      )
+                    );
                     DocumentSnapshot ds = snapshot.data;
                     Map<String, dynamic> temp = ds.data;
                     var sortedKeys = temp.keys.toList(growable:false)

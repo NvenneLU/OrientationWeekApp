@@ -92,16 +92,16 @@ class AnnouncementState extends State<AnnouncementsScreen> {
           title: Text((widget.lang.value ? 'Announcements' : 'Annonces')),
           centerTitle: false,
           actions: <Widget>[
-            new IconButton(
-              icon: Icon(Icons.swap_calls),
-              onPressed: () {
-                if(debugVal.value){
-                  debugVal.value = false;
-                } else {
-                  debugVal.value = true;
-                }
-              },
-            ),
+            // new IconButton(
+            //   icon: Icon(Icons.swap_calls),
+            //   onPressed: () {
+            //     if(debugVal.value){
+            //       debugVal.value = false;
+            //     } else {
+            //       debugVal.value = true;
+            //     }
+            //   },
+            // ),
             new IconButton(
               icon: const Icon(Icons.language),
               tooltip: 'Language',

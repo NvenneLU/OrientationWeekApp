@@ -185,16 +185,16 @@ class ImportantDatesState extends State<ImportantDatesScreen> {
           title: Text((widget.lang.value ? 'Important Dates' : 'Dates Importantes')),
           centerTitle: false,
           actions: <Widget>[
-            new IconButton(
-              icon: Icon(Icons.swap_calls),
-              onPressed: () {
-                if(debugVal.value){
-                  debugVal.value = false;
-                } else {
-                  debugVal.value = true;
-                }
-              },
-            ),
+            // new IconButton(
+            //   icon: Icon(Icons.swap_calls),
+            //   onPressed: () {
+            //     if(debugVal.value){
+            //       debugVal.value = false;
+            //     } else {
+            //       debugVal.value = true;
+            //     }
+            //   },
+            // ),
             new IconButton(
               icon: const Icon(Icons.language),
               tooltip: 'Language',
