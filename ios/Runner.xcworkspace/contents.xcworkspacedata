@@ -2,7 +2,7 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:Runner.xcodeproj">
+      location = "group:/Users/NicolasVenne/Development/OrientationAppV2/ios/Laurentian Orientation.xcodeproj">
    </FileRef>
    <FileRef
       location = "group:Pods/Pods.xcodeproj">

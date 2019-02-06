@@ -1,4 +1,4 @@
-package com.example.orientationweekappv2;
+package com.laurentianuniversity.orientationweekappv2;
 
 import android.os.Bundle;
 import io.flutter.app.FlutterActivity;
